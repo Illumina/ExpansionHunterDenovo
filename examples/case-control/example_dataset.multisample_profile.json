@@ -1,0 +1,61 @@
+{
+    "Counts": {
+        "AGC": {
+            "IrrPairCounts": {
+                "sample2": 2,
+                "sample3": 1
+            },
+            "RegionsWithIrrAnchors": {
+                "StrA:1723-2123": {
+                    "sample1": 8,
+                    "sample2": 32,
+                    "sample3": 29,
+                    "sample4": 5,
+                    "sample5": 9
+                }
+            }
+        },
+        "CCG": {
+            "IrrPairCounts": {
+                "sample1": 39,
+                "sample2": 46,
+                "sample3": 35,
+                "sample4": 1,
+                "sample5": 4,
+                "sample6": 1,
+                "sample7": 3
+            },
+            "RegionsWithIrrAnchors": {
+                "StrB:1684-2154": {
+                    "sample1": 21,
+                    "sample2": 22,
+                    "sample3": 30,
+                    "sample4": 28,
+                    "sample5": 19,
+                    "sample6": 20,
+                    "sample7": 19
+                }
+            }
+        }
+    },
+    "Parameters": {
+        "Depths": {
+            "sample1": 37.81827259111333,
+            "sample2": 38.45481777333999,
+            "sample3": 38.6045931103345,
+            "sample4": 37.74338492261607,
+            "sample5": 37.593609585621564,
+            "sample6": 37.51872191712431,
+            "sample7": 37.33150274588118
+        },
+        "ReadLengths": {
+            "sample1": 150,
+            "sample2": 150,
+            "sample3": 150,
+            "sample4": 150,
+            "sample5": 150,
+            "sample6": 150,
+            "sample7": 150
+        }
+    }
+}

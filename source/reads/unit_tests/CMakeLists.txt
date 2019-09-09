@@ -1,0 +1,3 @@
+add_executable(pair_collector_test pair_collector_test.cc)
+target_link_libraries(pair_collector_test pair_collector gtest gmock_main)
+add_test(NAME pair_collector_test COMMAND pair_collector_test)

@@ -1,0 +1,7 @@
+sample1	case	str-profiles/sample1.str_profile.json
+sample2	case	str-profiles/sample2.str_profile.json
+sample3	case	str-profiles/sample3.str_profile.json
+sample4	control	str-profiles/sample4.str_profile.json
+sample5	control	str-profiles/sample5.str_profile.json
+sample6	control	str-profiles/sample6.str_profile.json
+sample7	control	str-profiles/sample7.str_profile.json

@@ -1,0 +1,79 @@
+{
+    "Counts": {
+        "AGC": {
+            "IrrPairCounts": {
+                "sample1": 5
+            },
+            "RegionsWithIrrAnchors": {
+                "StrA:1702-2159": {
+                    "sample1": 42,
+                    "sample10": 2,
+                    "sample11": 15,
+                    "sample13": 8,
+                    "sample14": 13,
+                    "sample16": 14,
+                    "sample17": 1,
+                    "sample18": 3,
+                    "sample19": 20,
+                    "sample2": 1,
+                    "sample20": 2,
+                    "sample21": 4,
+                    "sample4": 3,
+                    "sample5": 12,
+                    "sample6": 7,
+                    "sample7": 15,
+                    "sample8": 2,
+                    "sample9": 11
+                }
+            }
+        }
+    },
+    "Parameters": {
+        "Depths": {
+            "sample1": 39.61557663504743,
+            "sample10": 37.89316025961058,
+            "sample11": 38.04293559660509,
+            "sample12": 37.74338492261607,
+            "sample13": 38.04293559660509,
+            "sample14": 38.04293559660509,
+            "sample15": 37.74338492261607,
+            "sample16": 38.1927109335996,
+            "sample17": 37.89316025961058,
+            "sample18": 38.04293559660509,
+            "sample19": 38.34248627059411,
+            "sample2": 37.89316025961058,
+            "sample20": 37.89316025961058,
+            "sample21": 38.04293559660509,
+            "sample3": 37.74338492261607,
+            "sample4": 37.89316025961058,
+            "sample5": 38.04293559660509,
+            "sample6": 38.1927109335996,
+            "sample7": 38.1927109335996,
+            "sample8": 37.89316025961058,
+            "sample9": 38.1927109335996
+        },
+        "ReadLengths": {
+            "sample1": 150,
+            "sample10": 150,
+            "sample11": 150,
+            "sample12": 150,
+            "sample13": 150,
+            "sample14": 150,
+            "sample15": 150,
+            "sample16": 150,
+            "sample17": 150,
+            "sample18": 150,
+            "sample19": 150,
+            "sample2": 150,
+            "sample20": 150,
+            "sample21": 150,
+            "sample3": 150,
+            "sample4": 150,
+            "sample5": 150,
+            "sample6": 150,
+            "sample7": 150,
+            "sample8": 150,
+            "sample9": 150
+        }
+    }
+}
