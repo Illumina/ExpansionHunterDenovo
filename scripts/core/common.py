@@ -165,7 +165,7 @@ def resample_quantiles(counts, num_resamples, target_quantile_value):
 
 def run_zscore_analysis(sample_status, sample_counts):
     raw_counts = [sample_counts.get(sample, 0) for sample, _ in sample_status.items()]
-    quantiles = resample_quantiles(raw_counts, 1000, 0.95)
+    quantiles = resample_quantiles(raw_counts, 100, 0.95)
     (mu, sigma) = stats.norm.fit(quantiles)
     sigma = max(sigma, 1)
 
