@@ -30,9 +30,16 @@ import casecontrol.motifworkflow
 
 def initialize_parser():
     parser = argparse.ArgumentParser(
-        prog="casecontrol", description="Case/control analysis of in-repeat reads"
+        prog="casecontrol", description="Case-control analysis of STR profiles"
     )
     return parser
+
+
+def initialize_subparsers(parser):
+    subparsers = parser.add_subparsers(help="command help")
+    subparsers.required = True
+    subparsers.dest = "command"
+    return subparsers
 
 
 def add_locus_command(subparsers):
@@ -107,6 +114,16 @@ def add_motif_command(subparsers):
     return command_parser
 
 
+def decode_test_params(params):
+    if params == "normal":
+        return ("normal",)
+    elif "permute_" in params:
+        num_perms = int(params.replace("permute_", ""))
+        return ("permute", num_perms)
+    else:
+        raise Exception("Unknown test parameters: {}".format(params))
+
+
 def run_locus_workflow(args):
     params = casecontrol.locusworkflow.Parameters(
         manifest_path=args.manifest,
@@ -114,7 +131,7 @@ def run_locus_workflow(args):
         min_inrepeat_reads=args.min_inrepeat_reads,
         output_path=args.output,
         target_region_path=args.target_regions,
-        test_params=args.test_params,
+        test_params=decode_test_params(args.test_params),
     )
 
     casecontrol.locusworkflow.run(params)
@@ -126,7 +143,7 @@ def run_motif_workflow(args):
         multisample_profile_path=args.multisample_profile,
         min_inrepeat_read_pairs=args.min_inrepeat_read_pairs,
         output_path=args.output,
-        test_params=args.test_params,
+        test_params=decode_test_params(args.test_params),
     )
 
     casecontrol.motifworkflow.run(params)
@@ -135,9 +152,7 @@ def run_motif_workflow(args):
 def main():
     common.init_logger()
     parser = initialize_parser()
-    subparsers = parser.add_subparsers(help="command help")
-    subparsers.required = True
-    subparsers.dest = "command"
+    subparsers = initialize_subparsers(parser)
     locus_command_parser = add_locus_command(subparsers)
     locus_command_parser.set_defaults(run_workflow=run_locus_workflow)
     motif_command_parser = add_motif_command(subparsers)

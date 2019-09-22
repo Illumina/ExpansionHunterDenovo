@@ -29,11 +29,10 @@ def calculate_approximate_pvalue(cases, controls):
     all_counts = cases + controls
     ranks = scipy.stats.rankdata(all_counts)
     case_rank_sum = np.sum(ranks[: len(cases)])
+    num_counts = len(cases) + len(controls)
 
-    mu_cases = len(cases) * (len(cases) + len(controls) + 1) / 2
-    sigma_cases = np.sqrt(
-        len(cases) * len(controls) * (len(cases) + len(controls) + 1) / 12
-    )
+    mu_cases = len(cases) * (num_counts + 1) / 2
+    sigma_cases = np.sqrt(len(cases) * len(controls) * (num_counts + 1) / 12)
     z_cases = (case_rank_sum - mu_cases) / sigma_cases
 
     return 1 - scipy.stats.norm.cdf(z_cases)
@@ -56,12 +55,11 @@ def calculate_permutation_pvalue(cases, controls, num_permutations):
 
 
 def wilcoxon_rank_sum_test(test_params, cases, controls):
-    if test_params == "normal":
+    method, *params = test_params
+    if method == "normal":
         return calculate_approximate_pvalue(cases, controls)
-    elif "resample" in test_params:
-        assert False, "Not implemented"
-        return calculate_permutation_pvalue(
-            cases, controls, test_params["num_resamples"]
-        )
+    elif method == "permute":
+        num_perms = params[0]
+        return calculate_permutation_pvalue(cases, controls, num_perms)
     else:
-        assert False, "{} is an unknown method type".format(test_method)
+        assert False, "{} is an unknown method type".format(method)
