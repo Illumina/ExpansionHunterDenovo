@@ -42,7 +42,9 @@ typical workstation. The exact runtime will depend on the sensitivity settings.
   originating inside each STR; this count can be used as a very approximate
   measure of the repeat length
 - To achieve best results all samples must be sequenced on the same instrument
-  to similar coverage and have the same read lengths
+  to similar coverage, have the same read and fragment lengths, and be subjected
+  to the same computational pre-processing (e.g. reads must be aligned by the
+  same aligner)
 
 ## Documentation
 
