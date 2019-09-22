@@ -30,9 +30,16 @@ import outlier.motifworkflow
 
 def initialize_parser():
     parser = argparse.ArgumentParser(
-        prog="outlier", description="Outlier analysis of in-repeat reads"
+        prog="outlier", description="Outlier analysis of STR profiles"
     )
     return parser
+
+
+def initialize_subparsers(parser):
+    subparsers = parser.add_subparsers(help="command help")
+    subparsers.required = True
+    subparsers.dest = "command"
+    return subparsers
 
 
 def add_locus_command(subparsers):
@@ -96,13 +103,10 @@ def run_motif_workflow(args):
 def main():
     common.init_logger()
     parser = initialize_parser()
-    subparsers = parser.add_subparsers(help="command help")
-    subparsers.required = True
-    subparsers.dest = "command"
+    subparsers = initialize_subparsers(parser)
 
     locus_command_parser = add_locus_command(subparsers)
     locus_command_parser.set_defaults(run_workflow=run_locus_workflow)
-
     motif_command_parser = add_motif_command(subparsers)
     motif_command_parser.set_defaults(run_workflow=run_motif_workflow)
 
