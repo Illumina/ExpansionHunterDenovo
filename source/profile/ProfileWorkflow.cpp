@@ -58,12 +58,13 @@ int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
 
         Read read = readStreamer.decodeRead();
 
-        string repeatUnit;
-        const ReadType readType
-            = classifyRead(parameters.maxMapqOfInrepeatRead(), parameters.minMapqOfAnchorRead(), read, repeatUnit);
+        string motif;
+        const ReadType readType = classifyRead(
+            parameters.motifSizeRange(), parameters.maxMapqOfInrepeatRead(), parameters.minMapqOfAnchorRead(), read,
+            motif);
         if (readType == ReadType::kIrrRead)
         {
-            pairCollector.addIrr(read, repeatUnit);
+            pairCollector.addIrr(read, motif);
         }
         else if (readType == ReadType::kAnchorRead)
         {
@@ -87,7 +88,7 @@ int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
     for (const auto& kv : irrRegions)
     {
         const string unit = kv.first;
-        if (parameters.shortestUnitToConsider() <= unit.length() && unit.length() <= parameters.longestUnitToConsider())
+        if (parameters.motifSizeRange().contains(unit.length()))
         {
             units.insert(unit);
         }

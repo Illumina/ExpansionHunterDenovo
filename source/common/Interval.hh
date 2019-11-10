@@ -22,6 +22,28 @@
 
 #pragma once
 
+#include <stdexcept>
 #include <string>
 
-const std::string kProgramVersion = "ExpansionHunter Denovo v0.8.5";
+class Interval
+{
+public:
+    Interval(int start, int end)
+        : start_(start)
+        , end_(end)
+    {
+        if (start_ > end_)
+        {
+            const auto interval = "(" + std::to_string(start_) + ", " + std::to_string(end_) + ")";
+            throw std::runtime_error("Invalid interval endpoints " + interval);
+        }
+    }
+
+    int start() const { return start_; }
+    int end() const { return end_; }
+    bool contains(int value) const { return start_ <= value && value <= end_; }
+
+private:
+    int start_;
+    int end_;
+};

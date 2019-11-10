@@ -27,12 +27,18 @@
 
 #include <string>
 
-int32_t MaxMatchesAtOffset(int32_t offset, const std::string& bases);
-double MatchFrequencyAtOffset(int32_t offset, const std::string& bases);
-int32_t SmallestFrequentPeriod(double min_frequency, const std::string& bases);
+#include "common/Interval.hh"
+
+int MaxMatchesAtOffset(int offset, const std::string& bases);
+double MatchFrequencyAtOffset(int offset, const std::string& bases);
+int SmallestFrequentPeriod(
+    double minFrequency, const std::string& bases, const Interval& periodSizeRange = Interval(1, 20));
 char ExtractConsensusBase(int32_t offset, int32_t period, const std::string& bases);
 std::string ExtractConsensusRepeatUnit(double period, const std::string& bases);
 std::string MinimialUnitUnderShift(const std::string& unit);
 std::string ComputeCanonicalRepeatUnit(const std::string& unit);
-std::string ComputeCanonicalRepeatUnit(double min_frequency, const std::string& bases);
-bool IsInrepeatRead(const std::string& bases, const std::string& quals, std::string& unit);
+std::string ComputeCanonicalRepeatUnit(
+    double minFrequency, const std::string& bases, const Interval& motifSizeRange = Interval(1, 20));
+bool IsInrepeatRead(
+    const std::string& bases, const std::string& quals, std::string& unit,
+    const Interval& motifSizeRange = Interval(1, 20));

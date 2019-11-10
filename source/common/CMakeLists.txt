@@ -1,6 +1,6 @@
 add_library(common STATIC
         Parameters.hh
-        SequenceUtils.hh SequenceUtils.cpp)
+        SequenceUtils.hh SequenceUtils.cpp Interval.cpp Interval.hh)
 
 target_include_directories(common PUBLIC ${CMAKE_SOURCE_DIR})
 target_link_libraries(common Boost::boost)
