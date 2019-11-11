@@ -76,7 +76,7 @@ int SmallestFrequentPeriod(double minFrequency, const string& bases, const Inter
 
     double maxMatchFrequency = minFrequency;
     int bestOffset = -1;
-    for (int offset = smallestPeriod; offset != largestPeriod; ++offset)
+    for (int offset = largestPeriod; offset + 1 != smallestPeriod; --offset)
     {
         const double match_frequency = MatchFrequencyAtOffset(offset, bases);
         if (match_frequency >= maxMatchFrequency)
