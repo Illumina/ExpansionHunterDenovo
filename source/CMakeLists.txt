@@ -34,7 +34,8 @@ add_executable(UnitTests
         tests/UnitTests.cpp
         tests/SequenceUtilsTest.cpp
         tests/PurityScoreTest.cpp
-        tests/GenomicRegionTest.cpp)
+        tests/GenomicRegionTest.cpp
+        tests/IrrFinderTest.cpp)
 target_link_libraries(UnitTests common reads region)
 target_include_directories(UnitTests PUBLIC ${CMAKE_SOURCE_DIR})
 

@@ -24,18 +24,19 @@
 
 #include <string>
 
+#include "common/Interval.hh"
+
 class ProfileWorkflowParameters
 {
 public:
     ProfileWorkflowParameters(
-        const std::string& outputPrefix, std::string pathToReads, std::string pathToReference,
-        int shortestUnitToConsider, int longestUnitToConsider, int minMapqOfAnchorRead, int maxMapqOfInrepeatRead);
+        const std::string& outputPrefix, std::string pathToReads, std::string pathToReference, Interval motifSizeRange,
+        int minMapqOfAnchorRead, int maxMapqOfInrepeatRead);
 
     const std::string& profilePath() const { return profilePath_; }
     const std::string& pathToReads() const { return pathToReads_; }
     const std::string& pathToReference() const { return pathToReference_; }
-    int shortestUnitToConsider() const { return shortestUnitToConsider_; }
-    int longestUnitToConsider() const { return longestUnitToConsider_; }
+    const Interval& motifSizeRange() const { return motifSizeRange_; }
     int minMapqOfAnchorRead() const { return minMapqOfAnchorRead_; }
     int maxMapqOfInrepeatRead() const { return maxMapqOfInrepeatRead_; }
 
@@ -43,8 +44,7 @@ private:
     std::string profilePath_;
     std::string pathToReads_;
     std::string pathToReference_;
-    int shortestUnitToConsider_;
-    int longestUnitToConsider_;
+    Interval motifSizeRange_;
     int minMapqOfAnchorRead_;
     int maxMapqOfInrepeatRead_;
 };

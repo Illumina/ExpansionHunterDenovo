@@ -1,7 +1,0 @@
-add_executable(irr_finder_test irr_finder_test.cc)
-target_link_libraries(irr_finder_test classification gtest gmock_main)
-add_test(NAME irr_finder_test COMMAND irr_finder_test)
-
-add_executable(classifier_test classifier_test.cc)
-target_link_libraries(classifier_test classification gtest_main)
-add_test(NAME classifier_test COMMAND classifier_test)

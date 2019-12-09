@@ -128,9 +128,9 @@ int runProfileWorkflow(int argc, char** argv)
 
     spdlog::info("Starting {} profile workflow", kProgramVersion);
 
+    Interval motifSizeRange(shortestUnitToConsider, longestUnitToConsider);
     ProfileWorkflowParameters params(
-        outputPrefix, pathToReads, pathToReference, shortestUnitToConsider, longestUnitToConsider, minMapqOfAnchorRead,
-        maxMapqOfInrepeatRead);
+        outputPrefix, pathToReads, pathToReference, motifSizeRange, minMapqOfAnchorRead, maxMapqOfInrepeatRead);
     return runProfileWorkflow(params);
 }
 

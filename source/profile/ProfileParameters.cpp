@@ -31,13 +31,12 @@ namespace fs = boost::filesystem;
 using std::string;
 
 ProfileWorkflowParameters::ProfileWorkflowParameters(
-    const string& outputPrefix, string pathToReads, string pathToReference, int shortestUnitToConsider,
-    int longestUnitToConsider, int minMapqOfAnchorRead, int maxMapqOfInrepeatRead)
+    const string& outputPrefix, string pathToReads, string pathToReference, Interval motifSizeRange,
+    int minMapqOfAnchorRead, int maxMapqOfInrepeatRead)
     : profilePath_(outputPrefix + ".str_profile.json")
     , pathToReads_(std::move(pathToReads))
     , pathToReference_(std::move(pathToReference))
-    , shortestUnitToConsider_(shortestUnitToConsider)
-    , longestUnitToConsider_(longestUnitToConsider)
+    , motifSizeRange_(std::move(motifSizeRange))
     , minMapqOfAnchorRead_(minMapqOfAnchorRead)
     , maxMapqOfInrepeatRead_(maxMapqOfInrepeatRead)
 {

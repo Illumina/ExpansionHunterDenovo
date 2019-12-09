@@ -25,12 +25,12 @@
 
 using std::string;
 
-ReadType classifyRead(int max_irr_mapq, int min_anchor_mapq, const Read& read, string& unit)
+ReadType classifyRead(Interval motifSizeRange, int max_irr_mapq, int min_anchor_mapq, const Read& read, string& unit)
 {
     const bool is_unmapped = read.flag & 0x4;
     const bool is_low_mapq = read.mapq <= max_irr_mapq;
 
-    const bool is_irr = (is_unmapped || is_low_mapq) && IsInrepeatRead(read.bases, read.quals, unit);
+    const bool is_irr = (is_unmapped || is_low_mapq) && IsInrepeatRead(read.bases, read.quals, unit, motifSizeRange);
 
     if (is_irr)
     {
