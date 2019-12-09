@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <boost/bind.hpp>
+#include <iostream>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -48,8 +49,15 @@ int32_t MaxMatchesAtOffset(int32_t offset, const std::string& bases)
 
 double MatchFrequencyAtOffset(int32_t offset, const string& bases)
 {
-    if (offset <= 0 || bases.length() / 2 + 1 <= offset)
+    if (offset <= 0)
+    {
         throw logic_error(to_string(offset) + " is not a valid offset for " + bases);
+    }
+
+    if (bases.length() / 2 + 1 <= offset)
+    {
+        return 0;
+    }
 
     int32_t num_matches = 0;
     for (size_t position = 0; position != bases.length() - offset; ++position)
@@ -61,16 +69,24 @@ double MatchFrequencyAtOffset(int32_t offset, const string& bases)
     return match_frequency;
 }
 
-int32_t SmallestFrequentPeriod(double min_frequency, const string& bases)
+int SmallestFrequentPeriod(double minFrequency, const string& bases, const Interval& periodSizeRange)
 {
-    for (int32_t offset = 1; offset != bases.length() / 2 + 1; ++offset)
+    const int smallestPeriod = std::max(periodSizeRange.start(), 1);
+    const int largestPeriod = std::min(periodSizeRange.end(), static_cast<int>(bases.length() / 2 + 1));
+
+    double maxMatchFrequency = minFrequency;
+    int bestOffset = -1;
+    for (int offset = largestPeriod; offset + 1 != smallestPeriod; --offset)
     {
         const double match_frequency = MatchFrequencyAtOffset(offset, bases);
-        if (match_frequency >= min_frequency)
-            return offset;
+        if (match_frequency >= maxMatchFrequency)
+        {
+            maxMatchFrequency = match_frequency;
+            bestOffset = offset;
+        }
     }
 
-    return -1;
+    return bestOffset;
 }
 
 char ExtractConsensusBase(int32_t offset, int32_t period, const std::string& bases)
@@ -97,7 +113,7 @@ char ExtractConsensusBase(int32_t offset, int32_t period, const std::string& bas
     return consensus_char;
 }
 
-string ExtractConsensusRepeatUnit(double period, const std::string& bases)
+string ExtractConsensusRepeatUnit(double period, const string& bases)
 {
     string repeat_unit;
     for (int32_t offset = 0; offset != period; ++offset)
@@ -131,26 +147,31 @@ string ComputeCanonicalRepeatUnit(const string& unit)
     return minimal_unit;
 }
 
-string ComputeCanonicalRepeatUnit(double min_frequency, const string& bases)
+string ComputeCanonicalRepeatUnit(double minFrequency, const string& bases, const Interval& motifSizeRange)
 {
-    const int32_t period = SmallestFrequentPeriod(min_frequency, bases);
+    const int period = SmallestFrequentPeriod(minFrequency, bases, motifSizeRange);
     if (period == -1)
+    {
         return "";
-    string repeat_unit = ExtractConsensusRepeatUnit(period, bases);
+    }
+    string motif = ExtractConsensusRepeatUnit(period, bases);
     const double kPerfectMatchFrequency = 1.0;
-    const int32_t reduced_period = SmallestFrequentPeriod(kPerfectMatchFrequency, repeat_unit);
-    if (reduced_period != -1 && reduced_period != period)
-        repeat_unit = ExtractConsensusRepeatUnit(reduced_period, repeat_unit);
-    repeat_unit = ComputeCanonicalRepeatUnit(repeat_unit);
-    return repeat_unit;
+    const int32_t reducedPeriod = SmallestFrequentPeriod(kPerfectMatchFrequency, motif);
+    if (reducedPeriod != -1 && reducedPeriod != period)
+    {
+        motif = ExtractConsensusRepeatUnit(reducedPeriod, motif);
+    }
+    return ComputeCanonicalRepeatUnit(motif);
 }
 
-bool IsInrepeatRead(const string& bases, const string& quals, string& unit)
+bool IsInrepeatRead(const string& bases, const string& quals, string& unit, const Interval& motifSizeRange)
 {
     const double min_frequency = 0.8;
-    unit = ComputeCanonicalRepeatUnit(min_frequency, bases);
+    unit = ComputeCanonicalRepeatUnit(min_frequency, bases, motifSizeRange);
     if (unit.empty() || unit == "N")
+    {
         return false;
+    }
 
     const vector<string> units = { unit };
     const vector<vector<string>> units_shifts = ShiftUnits(units);
@@ -159,10 +180,5 @@ bool IsInrepeatRead(const string& bases, const string& quals, string& unit)
     score /= bases.length();
 
     const double min_score = 0.90;
-    if (score < min_score)
-    {
-        return false;
-    }
-
-    return true;
+    return score >= min_score;
 }

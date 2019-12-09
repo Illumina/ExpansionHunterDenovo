@@ -20,9 +20,4 @@
 //
 //
 
-#pragma once
-
-#include <string>
-
-const std::string kProgramVersion = "ExpansionHunter Denovo v0.8.6";
-
+#include "common/Interval.hh"

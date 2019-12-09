@@ -23,8 +23,10 @@
 
 #include <string>
 
+#include "common/Interval.hh"
 #include "profile/PairCollector.hh"
 
-ReadType classifyRead(int max_irr_mapq, int min_anchor_mapq, const Read& read, std::string& unit);
+ReadType
+classifyRead(Interval motifSizeRange, int max_irr_mapq, int min_anchor_mapq, const Read& read, std::string& unit);
 PairType
 classifyPair(ReadType read_type, const std::string& read_unit, ReadType mate_type, const std::string& mate_unit);
