@@ -22,6 +22,7 @@
 #
 
 import argparse
+import numpy as np
 
 import core.common as common
 import outlier.locusworkflow
@@ -101,6 +102,7 @@ def run_motif_workflow(args):
 
 
 def main():
+    np.random.seed(42)
     common.init_logger()
     parser = initialize_parser()
     subparsers = initialize_subparsers(parser)
