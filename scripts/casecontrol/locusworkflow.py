@@ -110,7 +110,7 @@ def run(params):
     )
 
     if params.target_region_path:
-        target_regions = load_target_regions(params.target_regions)
+        target_regions = load_target_regions(params.target_region_path)
         logging.info("Restricting analysis to %i regions", len(target_regions))
         count_table = common.filter_counts_by_region(count_table, target_regions)
 
