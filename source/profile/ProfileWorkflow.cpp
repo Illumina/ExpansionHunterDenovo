@@ -41,6 +41,72 @@ using std::string;
 using std::unordered_map;
 using std::vector;
 
+using RegionsByUnit = std::unordered_map<std::string, std::vector<RegionWithCount>>;
+
+set<string> getTargetRepeatUnits(const RegionsByUnit& irrRegions, Interval targetSizeRange)
+{
+    set<string> units;
+    for (const auto& unitAndRegions : irrRegions)
+    {
+        const string& unit = unitAndRegions.first;
+        if (targetSizeRange.contains(unit.length()))
+        {
+            units.insert(unit);
+        }
+    }
+
+    return units;
+}
+
+void outputProfile(
+    const string& profilePath, const SampleRunStats& sampleStats, const RegionsByUnit& irrAnchorRegions,
+    const RegionsByUnit& irrRegions, const set<string>& targetUnits, const ReferenceContigInfo& contigInfo)
+{
+    nlohmann::json output;
+    output["ReadLength"] = sampleStats.meanReadLength();
+    output["Depth"] = sampleStats.depth();
+
+    for (const auto& unit : targetUnits)
+    {
+        output[unit]["RepeatUnit"] = unit;
+
+        size_t ancIrrCount = 0;
+        bool foundAncIrrs = irrAnchorRegions.find(unit) != irrAnchorRegions.end();
+        if (foundAncIrrs)
+        {
+            ancIrrCount = irrAnchorRegions.at(unit).size();
+        }
+
+        size_t irrPairCount = (irrRegions.at(unit).size() - ancIrrCount) / 2;
+
+        output[unit]["AnchoredIrrCount"] = ancIrrCount;
+        output[unit]["IrrPairCount"] = irrPairCount;
+
+        if (foundAncIrrs)
+        {
+            vector<RegionWithCount> mergedRegionsWithAnchors = irrAnchorRegions.at(unit);
+            sortAndMerge(mergedRegionsWithAnchors);
+
+            for (const auto& region : mergedRegionsWithAnchors)
+            {
+                const string regionEncoding = region.asString(contigInfo);
+                output[unit]["RegionsWithIrrAnchors"][regionEncoding] = region.feature().value();
+            }
+        }
+    }
+
+    std::ofstream profileStream;
+    profileStream.open(profilePath.c_str());
+
+    if (!profileStream.is_open())
+    {
+        throw std::runtime_error(
+            "Failed to open output JSON file " + profilePath + " for writing (" + strerror(errno) + ")");
+    }
+
+    profileStream << output.dump(4) << std::endl;
+}
+
 int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
 {
     assertValidity(parameters);
@@ -77,64 +143,11 @@ int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
     }
 
     const auto stats = statsCalculator.estimate();
-    nlohmann::json output;
-    output["ReadLength"] = stats->meanReadLength();
-    output["Depth"] = stats->depth();
+    assert(stats);
 
-    const auto irrAnchorRegions = pairCollector.anchorRegions();
-    const auto irrRegions = pairCollector.irrRegions();
-
-    set<string> units;
-    for (const auto& kv : irrRegions)
-    {
-        const string unit = kv.first;
-        if (parameters.motifSizeRange().contains(unit.length()))
-        {
-            units.insert(unit);
-        }
-    }
-
-    for (const auto& unit : units)
-    {
-
-        output[unit]["RepeatUnit"] = unit;
-
-        size_t ancIrrCount = 0;
-        bool foundAncIrrs = irrAnchorRegions.find(unit) != irrAnchorRegions.end();
-        if (foundAncIrrs)
-        {
-            ancIrrCount = irrAnchorRegions.at(unit).size();
-        }
-
-        size_t irrPairCount = (irrRegions.at(unit).size() - ancIrrCount) / 2;
-
-        output[unit]["AnchoredIrrCount"] = ancIrrCount;
-        output[unit]["IrrPairCount"] = irrPairCount;
-
-        if (foundAncIrrs)
-        {
-            vector<RegionWithCount> mergedRegionsWithAnchors = irrAnchorRegions.at(unit);
-            sortAndMerge(mergedRegionsWithAnchors);
-
-            for (const auto& region : mergedRegionsWithAnchors)
-            {
-                const string regionEncoding = region.asString(referenceContigInfo);
-                output[unit]["RegionsWithIrrAnchors"][regionEncoding] = region.feature().value();
-            }
-        }
-    }
-
-    const string& jsonPath = parameters.profilePath();
-    std::ofstream jsonStream;
-    jsonStream.open(jsonPath.c_str());
-
-    if (!jsonStream.is_open())
-    {
-        throw std::runtime_error(
-            "Failed to open output JSON file " + jsonPath + " for writing (" + strerror(errno) + ")");
-    }
-
-    jsonStream << output.dump(4) << std::endl;
-
+    auto targetUnits = getTargetRepeatUnits(pairCollector.irrRegions(), parameters.motifSizeRange());
+    outputProfile(
+        parameters.profilePath(), *stats, pairCollector.anchorRegions(), pairCollector.irrRegions(), targetUnits,
+        referenceContigInfo);
     return 0;
 }
