@@ -34,6 +34,7 @@ public:
         int minMapqOfAnchorRead, int maxMapqOfInrepeatRead);
 
     const std::string& profilePath() const { return profilePath_; }
+    const std::string& pathToAnchoredIrrTable() const { return pathToAnchoredIrrTable_; }
     const std::string& pathToReads() const { return pathToReads_; }
     const std::string& pathToReference() const { return pathToReference_; }
     const Interval& motifSizeRange() const { return motifSizeRange_; }
@@ -42,6 +43,7 @@ public:
 
 private:
     std::string profilePath_;
+    std::string pathToAnchoredIrrTable_;
     std::string pathToReads_;
     std::string pathToReference_;
     Interval motifSizeRange_;

@@ -105,6 +105,58 @@ void outputProfile(
     }
 
     profileStream << output.dump(4) << std::endl;
+    profileStream.close();
+}
+
+int getNumUnitsSpanned(double sampleDepth, int readLength, int unitLen, int numIrrs)
+{
+    const double alleleDepth = sampleDepth / 2;
+    const double numStarts = (numIrrs * readLength) / alleleDepth;
+    const double lengthInBp = readLength + numStarts;
+    const double lengthInUnits = lengthInBp / unitLen;
+    return static_cast<int>(lengthInUnits);
+}
+
+void outputAnchoredIrrTable(
+    const string& tablePath, const SampleRunStats& sampleStats, const RegionsByUnit& irrAnchorRegions,
+    const set<string>& targetUnits, const ReferenceContigInfo& contigInfo)
+{
+    std::ofstream tableStream;
+    tableStream.open(tablePath.c_str());
+
+    if (!tableStream.is_open())
+    {
+        throw std::runtime_error("Failed to open output file " + tablePath + " for writing (" + strerror(errno) + ")");
+    }
+
+    tableStream << "contig\tstart\tend\tunit\tnum_anc_irrs\thet_str_size" << std::endl;
+    for (const auto& unit : targetUnits)
+    {
+        if (irrAnchorRegions.find(unit) == irrAnchorRegions.end())
+        {
+            continue;
+        }
+
+        vector<RegionWithCount> mergedRegionsWithAnchors = irrAnchorRegions.at(unit);
+        sortAndMerge(mergedRegionsWithAnchors);
+
+        for (const auto& region : mergedRegionsWithAnchors)
+        {
+            if (region.contigId() == -1)
+            {
+                continue;
+            }
+
+            const string& contigName = contigInfo.getContigName(region.contigId());
+            const int numIrrs = region.feature().value();
+            const int numUnitsSpanned
+                = getNumUnitsSpanned(sampleStats.depth(), sampleStats.meanReadLength(), unit.length(), numIrrs);
+            tableStream << contigName << "\t" << region.start() << "\t" << region.end() << "\t" << unit << "\t"
+                        << numIrrs << "\t" << numUnitsSpanned << std::endl;
+        }
+    }
+
+    tableStream.close();
 }
 
 int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
@@ -149,5 +201,8 @@ int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
     outputProfile(
         parameters.profilePath(), *stats, pairCollector.anchorRegions(), pairCollector.irrRegions(), targetUnits,
         referenceContigInfo);
+    outputAnchoredIrrTable(
+        parameters.pathToAnchoredIrrTable(), *stats, pairCollector.anchorRegions(), targetUnits, referenceContigInfo);
+    // outputPairedIrrTable()
     return 0;
 }

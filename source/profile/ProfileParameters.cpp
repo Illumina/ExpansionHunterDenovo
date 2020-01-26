@@ -34,6 +34,7 @@ ProfileWorkflowParameters::ProfileWorkflowParameters(
     const string& outputPrefix, string pathToReads, string pathToReference, Interval motifSizeRange,
     int minMapqOfAnchorRead, int maxMapqOfInrepeatRead)
     : profilePath_(outputPrefix + ".str_profile.json")
+    , pathToAnchoredIrrTable_(outputPrefix + ".anchored_irrs.tsv")
     , pathToReads_(std::move(pathToReads))
     , pathToReference_(std::move(pathToReference))
     , motifSizeRange_(std::move(motifSizeRange))

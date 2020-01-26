@@ -14,22 +14,22 @@ do
 done
 
 # Merge STR profiles into multi-sample STR profile
-../../build/ExpansionHunterDenovo merge \
-  --reference reference.fasta \
-  --manifest manifest.tsv \
-  --output-prefix example_dataset
+#../../build/ExpansionHunterDenovo merge \
+#  --reference reference.fasta \
+#  --manifest manifest.tsv \
+#  --output-prefix example_dataset
 
 
 # Perform locus-based case-control comparison
-../../scripts/casecontrol.py locus \
-    --manifest manifest.tsv \
-    --multisample-profile example_dataset.multisample_profile.json \
-    --output example_dataset.casecontrol_locus.tsv
+#../../scripts/casecontrol.py locus \
+#    --manifest manifest.tsv \
+#    --multisample-profile example_dataset.multisample_profile.json \
+#    --output example_dataset.casecontrol_locus.tsv
 
 
 # Perform motif-based case-control comparison
-../../scripts/casecontrol.py motif \
-    --manifest manifest.tsv \
-    --multisample-profile example_dataset.multisample_profile.json \
-    --output example_dataset.casecontrol_motif.tsv
+#../../scripts/casecontrol.py motif \
+#    --manifest manifest.tsv \
+#    --multisample-profile example_dataset.multisample_profile.json \
+#    --output example_dataset.casecontrol_motif.tsv
 
