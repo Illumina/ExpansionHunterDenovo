@@ -117,7 +117,7 @@ int getNumUnitsSpanned(double sampleDepth, int readLength, int unitLen, int numI
     return static_cast<int>(lengthInUnits);
 }
 
-void outputAnchoredIrrTable(
+void outputLocusTable(
     const string& tablePath, const SampleRunStats& sampleStats, const RegionsByUnit& irrAnchorRegions,
     const set<string>& targetUnits, const ReferenceContigInfo& contigInfo)
 {
@@ -156,6 +156,45 @@ void outputAnchoredIrrTable(
         }
     }
 
+    tableStream.close();
+}
+
+double depthNormalize(double sampleDepth, int numIrrs, double targetDepth = 30.0)
+{
+    return (numIrrs * targetDepth) / sampleDepth;
+}
+
+void outputMotifTable(
+    const string& tablePath, const SampleRunStats& sampleStats, const RegionsByUnit& irrAnchorRegions,
+    const RegionsByUnit& irrRegions, const set<string>& targetUnits, const ReferenceContigInfo& contigInfo)
+{
+    std::ofstream tableStream;
+    tableStream.open(tablePath.c_str());
+
+    if (!tableStream.is_open())
+    {
+        throw std::runtime_error("Failed to open output file " + tablePath + " for writing (" + strerror(errno) + ")");
+    }
+
+    tableStream << std::setprecision(2) << std::fixed;
+    tableStream << "unit\tnum_paired_irrs\tnorm_num_paired_irrs" << std::endl;
+    for (const auto& unit : targetUnits)
+    {
+        int ancIrrCount = 0;
+        if (irrAnchorRegions.find(unit) != irrAnchorRegions.end())
+        {
+            ancIrrCount = irrAnchorRegions.at(unit).size();
+        }
+
+        const int irrPairCount = (static_cast<int>(irrRegions.at(unit).size()) - ancIrrCount) / 2;
+        if (irrPairCount == 0)
+        {
+            continue;
+        }
+
+        const double normIrrPairCount = depthNormalize(sampleStats.depth(), irrPairCount);
+        tableStream << unit << "\t" << irrPairCount << "\t" << normIrrPairCount << std::endl;
+    }
     tableStream.close();
 }
 
@@ -201,8 +240,10 @@ int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
     outputProfile(
         parameters.profilePath(), *stats, pairCollector.anchorRegions(), pairCollector.irrRegions(), targetUnits,
         referenceContigInfo);
-    outputAnchoredIrrTable(
-        parameters.pathToAnchoredIrrTable(), *stats, pairCollector.anchorRegions(), targetUnits, referenceContigInfo);
-    // outputPairedIrrTable()
+    outputLocusTable(
+        parameters.pathToLocusTable(), *stats, pairCollector.anchorRegions(), targetUnits, referenceContigInfo);
+    outputMotifTable(
+        parameters.pathToMotifTable(), *stats, pairCollector.anchorRegions(), pairCollector.irrRegions(), targetUnits,
+        referenceContigInfo);
     return 0;
 }
