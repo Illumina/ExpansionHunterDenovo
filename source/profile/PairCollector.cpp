@@ -211,13 +211,13 @@ void PairCollector::logIrrPair(
         {
             *logStream_ << (readUnit == mateUnit ? readUnit : readUnit + "_" + mateUnit);
             *logStream_ << "\tirr\t" << readRegion.asString(contigInfo_);
-            *logStream_ << "\tirr\t" << readRegion.asString(contigInfo_);
+            *logStream_ << "\tirr\t" << mateRegion.asString(contigInfo_);
             *logStream_ << "\t" << fragName;
         }
         else
         {
             *logStream_ << (readUnit == mateUnit ? readUnit : mateUnit + "_" + readUnit);
-            *logStream_ << "\tirr\t" << readRegion.asString(contigInfo_);
+            *logStream_ << "\tirr\t" << mateRegion.asString(contigInfo_);
             *logStream_ << "\tirr\t" << readRegion.asString(contigInfo_);
             *logStream_ << "\t" << fragName;
         }
@@ -233,7 +233,7 @@ void PairCollector::logAnchoredIrr(
     {
         *logStream_ << "anchored_irr\t" << unit;
         *logStream_ << "\tirr\t" << irrRegion.asString(contigInfo_);
-        *logStream_ << "\tanchor\t" << irrRegion.asString(contigInfo_);
+        *logStream_ << "\tanchor\t" << anchorRegion.asString(contigInfo_);
         *logStream_ << "\t" << fragName;
 
         *logStream_ << std::endl;
