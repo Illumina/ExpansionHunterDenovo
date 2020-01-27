@@ -126,11 +126,20 @@ TEST_CASE("Genomic region can be decoded from string", "[manipulating regions]")
     REQUIRE(region == expectedRegion);
 }
 
-TEST_CASE("Genomic regions with ambigous contigs can be decoded", "[manipulating regions]")
+TEST_CASE("Genomic regions with ambiguous contigs can be decoded", "[manipulating regions]")
 {
     ReferenceContigInfo contigInfo({ { "HLA-DQA1*05:11", 1000 } });
     GenomicRegion region = decode(contigInfo, "HLA-DQA1*05:11:6177-6177");
 
     GenomicRegion expectedRegion(0, 6177, 6177);
+    REQUIRE(region == expectedRegion);
+}
+
+TEST_CASE("Unaligned regions can be decoded", "[manipulating regions]")
+{
+    ReferenceContigInfo contigInfo({ { "chr1", 1000 } });
+    GenomicRegion region = decode(contigInfo, "unaligned");
+
+    GenomicRegion expectedRegion(-1, 0, 0);
     REQUIRE(region == expectedRegion);
 }

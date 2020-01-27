@@ -164,6 +164,11 @@ RegionWithCount createCountableRegion(int contigId, int64_t start, int64_t end)
 
 GenomicRegion decode(const ReferenceContigInfo& contigInfo, const string& encoding)
 {
+    if (encoding == "unaligned")
+    {
+        return { -1, 0, 0 };
+    }
+
     auto colonIndex = encoding.find_last_of(':');
     if (colonIndex == string::npos || colonIndex == 0 || colonIndex + 1 == encoding.size())
     {
