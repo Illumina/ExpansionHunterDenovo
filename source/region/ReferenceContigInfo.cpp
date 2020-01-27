@@ -83,7 +83,7 @@ int ReferenceContigInfo::getContigId(const std::string& contigName) const
 
 void ReferenceContigInfo::assertValidIndex(int contigIndex) const
 {
-    if (contigIndex >= static_cast<int>(namesAndSizes_.size()))
+    if (contigIndex < 0 || contigIndex >= static_cast<int>(namesAndSizes_.size()))
     {
         throw std::logic_error("Invalid contig index " + to_string(contigIndex));
     }

@@ -203,11 +203,16 @@ int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
     assertValidity(parameters);
     spdlog::info("File with reads: {}", parameters.pathToReads());
 
-    PairCollector pairCollector;
     HtsFileStreamer readStreamer(parameters.pathToReads(), parameters.pathToReference());
 
     const ReferenceContigInfo& referenceContigInfo = readStreamer.contigInfo();
     SampleRunStatsCalculator statsCalculator(referenceContigInfo);
+
+    PairCollector pairCollector(referenceContigInfo);
+    if (parameters.pathToReadLog())
+    {
+        pairCollector.enableReadLogging(*parameters.pathToReadLog());
+    }
 
     while (readStreamer.trySeekingToNextPrimaryAlignment())
     {

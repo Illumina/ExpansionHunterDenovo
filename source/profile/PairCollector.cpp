@@ -105,6 +105,8 @@ void PairCollector::addAnchor(const Read& read)
             RegionWithCount anchor_region = createCountableRegion(read.contigId, read.pos, read.pos + 1);
             anchorRegions_[irr_unit].push_back(anchor_region);
             irrRegions_[irr_unit].push_back(irr_region);
+
+            logAnchoredIrr(read.name, irr_unit, irr_region, anchor_region);
         }
         unparedCache_.eraseRead(read);
     }
@@ -124,9 +126,11 @@ void PairCollector::addIrr(const Read& read, const std::string& unit)
             RegionWithCount mate_region = unparedCache_.extractRegionOfIrrOrAnchor(read);
             const string mate_unit = unparedCache_.extractUnitOfIrr(read);
 
+            RegionWithCount read_region = createCountableRegion(read.contigId, read.pos, read.pos + 1);
+            logIrrPair(read.name, read_region, unit, mate_region, mate_unit);
+
             if (unit == mate_unit)
             {
-                RegionWithCount read_region = createCountableRegion(read.contigId, read.pos, read.pos + 1);
                 irrRegions_[unit].push_back(read_region);
                 irrRegions_[unit].push_back(mate_region);
             }
@@ -138,6 +142,8 @@ void PairCollector::addIrr(const Read& read, const std::string& unit)
 
             RegionWithCount mate_region = unparedCache_.extractRegionOfIrrOrAnchor(read);
             anchorRegions_[unit].push_back(mate_region);
+
+            logAnchoredIrr(read.name, unit, irr_region, mate_region);
         }
         unparedCache_.eraseRead(read);
     }
@@ -166,4 +172,70 @@ string PairCollector::PrintStats()
 
     stats += " " + unparedCache_.printStats();
     return stats;
+}
+
+void PairCollector::enableReadLogging(const string& pathToReadLog)
+{
+    if (logStream_)
+    {
+        throw std::runtime_error("Read logging cannot be enabled twice " + pathToReadLog);
+    }
+
+    logStream_.reset(new std::ofstream());
+    logStream_->open(pathToReadLog.c_str());
+
+    if (!logStream_->is_open())
+    {
+        throw std::runtime_error("Failed to open " + pathToReadLog + " for writing (" + strerror(errno) + ")");
+    }
+
+    *logStream_ << "pair_type\tmotif\tread_type\tread_pos\tmate_type\tmate_pos\tname" << std::endl;
+}
+
+PairCollector::~PairCollector()
+{
+    if (logStream_)
+    {
+        logStream_->close();
+    }
+}
+
+void PairCollector::logIrrPair(
+    const std::string& fragName, const GenomicRegion& readRegion, const std::string& readUnit,
+    const GenomicRegion& mateRegion, const std::string& mateUnit)
+{
+    if (logStream_)
+    {
+        *logStream_ << "irr_pair\t";
+        if (readUnit <= mateUnit)
+        {
+            *logStream_ << (readUnit == mateUnit ? readUnit : readUnit + "_" + mateUnit);
+            *logStream_ << "\tirr\t" << readRegion.asString(contigInfo_);
+            *logStream_ << "\tirr\t" << readRegion.asString(contigInfo_);
+            *logStream_ << "\t" << fragName;
+        }
+        else
+        {
+            *logStream_ << (readUnit == mateUnit ? readUnit : mateUnit + "_" + readUnit);
+            *logStream_ << "\tirr\t" << readRegion.asString(contigInfo_);
+            *logStream_ << "\tirr\t" << readRegion.asString(contigInfo_);
+            *logStream_ << "\t" << fragName;
+        }
+
+        *logStream_ << std::endl;
+    }
+}
+void PairCollector::logAnchoredIrr(
+    const std::string& fragName, const std::string& unit, const GenomicRegion& irrRegion,
+    const GenomicRegion& anchorRegion)
+{
+    if (logStream_)
+    {
+        *logStream_ << "anchored_irr\t" << unit;
+        *logStream_ << "\tirr\t" << irrRegion.asString(contigInfo_);
+        *logStream_ << "\tanchor\t" << irrRegion.asString(contigInfo_);
+        *logStream_ << "\t" << fragName;
+
+        *logStream_ << std::endl;
+    }
 }

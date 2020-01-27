@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <fstream>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -64,6 +66,11 @@ private:
 class PairCollector
 {
 public:
+    PairCollector(ReferenceContigInfo contigInfo)
+        : contigInfo_(std::move(contigInfo))
+    {
+    }
+    ~PairCollector();
     void addAnchor(const Read& read);
     void addIrr(const Read& read, const std::string& unit);
     void addOtherRead(const Read& read);
@@ -71,9 +78,22 @@ public:
     const std::unordered_map<std::string, std::vector<RegionWithCount>>& anchorRegions() { return anchorRegions_; }
     const std::unordered_map<std::string, std::vector<RegionWithCount>>& irrRegions() { return irrRegions_; };
 
+    void enableReadLogging(const std::string& pathToReadLog);
+
 private:
+    void logIrrPair(
+        const std::string& fragName, const GenomicRegion& readRegion, const std::string& readUnit,
+        const GenomicRegion& mateRegion, const std::string& mateUnit);
+
+    void logAnchoredIrr(
+        const std::string& fragName, const std::string& unit, const GenomicRegion& irrRegion,
+        const GenomicRegion& anchorRegion);
+
+    ReferenceContigInfo contigInfo_;
     ReadCache unparedCache_;
     // Regions containing anchors and IRRs.
     std::unordered_map<std::string, std::vector<RegionWithCount>> anchorRegions_;
     std::unordered_map<std::string, std::vector<RegionWithCount>> irrRegions_;
+
+    std::unique_ptr<std::ofstream> logStream_;
 };

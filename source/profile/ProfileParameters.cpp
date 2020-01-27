@@ -31,7 +31,7 @@ namespace fs = boost::filesystem;
 using std::string;
 
 ProfileWorkflowParameters::ProfileWorkflowParameters(
-    const string& outputPrefix, string pathToReads, string pathToReference, Interval motifSizeRange,
+    const string& outputPrefix, bool logReads, string pathToReads, string pathToReference, Interval motifSizeRange,
     int minMapqOfAnchorRead, int maxMapqOfInrepeatRead)
     : profilePath_(outputPrefix + ".str_profile.json")
     , pathToLocusTable_(outputPrefix + ".locus.tsv")
@@ -42,6 +42,10 @@ ProfileWorkflowParameters::ProfileWorkflowParameters(
     , minMapqOfAnchorRead_(minMapqOfAnchorRead)
     , maxMapqOfInrepeatRead_(maxMapqOfInrepeatRead)
 {
+    if (logReads)
+    {
+        pathToReadLog_ = outputPrefix + ".reads.tsv";
+    }
 }
 
 /*
