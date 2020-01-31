@@ -22,13 +22,11 @@
 
 #include "region/GenomicRegion.hh"
 
+#include <algorithm>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
 
 using std::ostream;
 using std::string;
@@ -161,24 +159,40 @@ std::ostream& operator<<(std::ostream& out, const SampleCountFeature& feature)
 
 RegionWithCount createCountableRegion(int contigId, int64_t start, int64_t end)
 {
-    return RegionWithFeature<CountFeature>(contigId, start, end, CountFeature(1));
+    return { contigId, start, end, CountFeature(1) };
 }
 
 GenomicRegion decode(const ReferenceContigInfo& contigInfo, const string& encoding)
 {
-    vector<string> components;
-    boost::algorithm::split(components, encoding, boost::algorithm::is_any_of(":-"));
+    if (encoding == "unaligned")
+    {
+        return { -1, 0, 0 };
+    }
 
-    if (components.size() != 3)
+    auto colonIndex = encoding.find_last_of(':');
+    if (colonIndex == string::npos || colonIndex == 0 || colonIndex + 1 == encoding.size())
     {
         throw std::logic_error("Unexpected range format: " + encoding);
     }
 
-    const auto& contigName = components[0];
-    int32_t contigIndex = contigInfo.getContigId(contigName);
+    string contig = encoding.substr(0, colonIndex);
+    string intervalEncoding = encoding.substr(colonIndex + 1);
 
-    int64_t start = std::stoi(components[1]);
-    int64_t end = std::stoi(components[2]);
+    auto numDashes = std::count(intervalEncoding.begin(), intervalEncoding.end(), '-');
+    if (numDashes != 1)
+    {
+        throw std::logic_error("Unexpected range format: " + encoding);
+    }
 
-    return GenomicRegion(contigIndex, start, end);
+    auto dashIndex = intervalEncoding.find('-');
+    if (dashIndex == 0 || dashIndex + 1 == intervalEncoding.size())
+    {
+        throw std::logic_error("Unexpected range format: " + encoding);
+    }
+
+    int contigIndex = contigInfo.getContigId(contig);
+    int64_t start = std::stoi(intervalEncoding.substr(0, dashIndex));
+    int64_t end = std::stoi(intervalEncoding.substr(dashIndex + 1));
+
+    return { contigIndex, start, end };
 }
