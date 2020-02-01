@@ -41,16 +41,178 @@ using std::string;
 using std::unordered_map;
 using std::vector;
 
+using RegionsByUnit = std::unordered_map<std::string, std::vector<RegionWithCount>>;
+
+set<string> getTargetRepeatUnits(const RegionsByUnit& irrRegions, Interval targetSizeRange)
+{
+    set<string> units;
+    for (const auto& unitAndRegions : irrRegions)
+    {
+        const string& unit = unitAndRegions.first;
+        if (targetSizeRange.contains(unit.length()))
+        {
+            units.insert(unit);
+        }
+    }
+
+    return units;
+}
+
+void outputProfile(
+    const string& profilePath, const SampleRunStats& sampleStats, const RegionsByUnit& irrAnchorRegions,
+    const RegionsByUnit& irrRegions, const set<string>& targetUnits, const ReferenceContigInfo& contigInfo)
+{
+    nlohmann::json output;
+    output["ReadLength"] = sampleStats.meanReadLength();
+    output["Depth"] = sampleStats.depth();
+
+    for (const auto& unit : targetUnits)
+    {
+        output[unit]["RepeatUnit"] = unit;
+
+        size_t ancIrrCount = 0;
+        bool foundAncIrrs = irrAnchorRegions.find(unit) != irrAnchorRegions.end();
+        if (foundAncIrrs)
+        {
+            ancIrrCount = irrAnchorRegions.at(unit).size();
+        }
+
+        size_t irrPairCount = (irrRegions.at(unit).size() - ancIrrCount) / 2;
+
+        output[unit]["AnchoredIrrCount"] = ancIrrCount;
+        output[unit]["IrrPairCount"] = irrPairCount;
+
+        if (foundAncIrrs)
+        {
+            vector<RegionWithCount> mergedRegionsWithAnchors = irrAnchorRegions.at(unit);
+            sortAndMerge(mergedRegionsWithAnchors);
+
+            for (const auto& region : mergedRegionsWithAnchors)
+            {
+                const string regionEncoding = region.asString(contigInfo);
+                output[unit]["RegionsWithIrrAnchors"][regionEncoding] = region.feature().value();
+            }
+        }
+    }
+
+    std::ofstream profileStream;
+    profileStream.open(profilePath.c_str());
+
+    if (!profileStream.is_open())
+    {
+        throw std::runtime_error(
+            "Failed to open output JSON file " + profilePath + " for writing (" + strerror(errno) + ")");
+    }
+
+    profileStream << output.dump(4) << std::endl;
+    profileStream.close();
+}
+
+int getNumUnitsSpanned(double sampleDepth, int readLength, int unitLen, int numIrrs)
+{
+    const double alleleDepth = sampleDepth / 2;
+    const double numStarts = (numIrrs * readLength) / alleleDepth;
+    const double lengthInBp = readLength + numStarts;
+    const double lengthInUnits = lengthInBp / unitLen;
+    return static_cast<int>(lengthInUnits);
+}
+
+void outputLocusTable(
+    const string& tablePath, const SampleRunStats& sampleStats, const RegionsByUnit& irrAnchorRegions,
+    const set<string>& targetUnits, const ReferenceContigInfo& contigInfo)
+{
+    std::ofstream tableStream;
+    tableStream.open(tablePath.c_str());
+
+    if (!tableStream.is_open())
+    {
+        throw std::runtime_error("Failed to open output file " + tablePath + " for writing (" + strerror(errno) + ")");
+    }
+
+    tableStream << "contig\tstart\tend\tunit\tnum_anc_irrs\thet_str_size" << std::endl;
+    for (const auto& unit : targetUnits)
+    {
+        if (irrAnchorRegions.find(unit) == irrAnchorRegions.end())
+        {
+            continue;
+        }
+
+        vector<RegionWithCount> mergedRegionsWithAnchors = irrAnchorRegions.at(unit);
+        sortAndMerge(mergedRegionsWithAnchors);
+
+        for (const auto& region : mergedRegionsWithAnchors)
+        {
+            if (region.contigId() == -1)
+            {
+                continue;
+            }
+
+            const string& contigName = contigInfo.getContigName(region.contigId());
+            const int numIrrs = region.feature().value();
+            const int numUnitsSpanned
+                = getNumUnitsSpanned(sampleStats.depth(), sampleStats.meanReadLength(), unit.length(), numIrrs);
+            tableStream << contigName << "\t" << region.start() << "\t" << region.end() << "\t" << unit << "\t"
+                        << numIrrs << "\t" << numUnitsSpanned << std::endl;
+        }
+    }
+
+    tableStream.close();
+}
+
+double depthNormalize(double sampleDepth, int numIrrs, double targetDepth = 30.0)
+{
+    return (numIrrs * targetDepth) / sampleDepth;
+}
+
+void outputMotifTable(
+    const string& tablePath, const SampleRunStats& sampleStats, const RegionsByUnit& irrAnchorRegions,
+    const RegionsByUnit& irrRegions, const set<string>& targetUnits, const ReferenceContigInfo& contigInfo)
+{
+    std::ofstream tableStream;
+    tableStream.open(tablePath.c_str());
+
+    if (!tableStream.is_open())
+    {
+        throw std::runtime_error("Failed to open output file " + tablePath + " for writing (" + strerror(errno) + ")");
+    }
+
+    tableStream << std::setprecision(2) << std::fixed;
+    tableStream << "unit\tnum_paired_irrs\tnorm_num_paired_irrs" << std::endl;
+    for (const auto& unit : targetUnits)
+    {
+        int ancIrrCount = 0;
+        if (irrAnchorRegions.find(unit) != irrAnchorRegions.end())
+        {
+            ancIrrCount = irrAnchorRegions.at(unit).size();
+        }
+
+        const int irrPairCount = (static_cast<int>(irrRegions.at(unit).size()) - ancIrrCount) / 2;
+        if (irrPairCount == 0)
+        {
+            continue;
+        }
+
+        const double normIrrPairCount = depthNormalize(sampleStats.depth(), irrPairCount);
+        tableStream << unit << "\t" << irrPairCount << "\t" << normIrrPairCount << std::endl;
+    }
+    tableStream.close();
+}
+
 int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
 {
     assertValidity(parameters);
     spdlog::info("File with reads: {}", parameters.pathToReads());
 
-    PairCollector pairCollector;
     HtsFileStreamer readStreamer(parameters.pathToReads(), parameters.pathToReference());
 
     const ReferenceContigInfo& referenceContigInfo = readStreamer.contigInfo();
     SampleRunStatsCalculator statsCalculator(referenceContigInfo);
+
+    PairCollector pairCollector(referenceContigInfo);
+    if (parameters.pathToReadLog())
+    {
+        pairCollector.enableReadLogging(*parameters.pathToReadLog());
+    }
 
     while (readStreamer.trySeekingToNextPrimaryAlignment())
     {
@@ -77,64 +239,16 @@ int runProfileWorkflow(const ProfileWorkflowParameters& parameters)
     }
 
     const auto stats = statsCalculator.estimate();
-    nlohmann::json output;
-    output["ReadLength"] = stats->meanReadLength();
-    output["Depth"] = stats->depth();
+    assert(stats);
 
-    const auto irrAnchorRegions = pairCollector.anchorRegions();
-    const auto irrRegions = pairCollector.irrRegions();
-
-    set<string> units;
-    for (const auto& kv : irrRegions)
-    {
-        const string unit = kv.first;
-        if (parameters.motifSizeRange().contains(unit.length()))
-        {
-            units.insert(unit);
-        }
-    }
-
-    for (const auto& unit : units)
-    {
-
-        output[unit]["RepeatUnit"] = unit;
-
-        size_t ancIrrCount = 0;
-        bool foundAncIrrs = irrAnchorRegions.find(unit) != irrAnchorRegions.end();
-        if (foundAncIrrs)
-        {
-            ancIrrCount = irrAnchorRegions.at(unit).size();
-        }
-
-        size_t irrPairCount = (irrRegions.at(unit).size() - ancIrrCount) / 2;
-
-        output[unit]["AnchoredIrrCount"] = ancIrrCount;
-        output[unit]["IrrPairCount"] = irrPairCount;
-
-        if (foundAncIrrs)
-        {
-            vector<RegionWithCount> mergedRegionsWithAnchors = irrAnchorRegions.at(unit);
-            sortAndMerge(mergedRegionsWithAnchors);
-
-            for (const auto& region : mergedRegionsWithAnchors)
-            {
-                const string regionEncoding = region.asString(referenceContigInfo);
-                output[unit]["RegionsWithIrrAnchors"][regionEncoding] = region.feature().value();
-            }
-        }
-    }
-
-    const string& jsonPath = parameters.profilePath();
-    std::ofstream jsonStream;
-    jsonStream.open(jsonPath.c_str());
-
-    if (!jsonStream.is_open())
-    {
-        throw std::runtime_error(
-            "Failed to open output JSON file " + jsonPath + " for writing (" + strerror(errno) + ")");
-    }
-
-    jsonStream << output.dump(4) << std::endl;
-
+    auto targetUnits = getTargetRepeatUnits(pairCollector.irrRegions(), parameters.motifSizeRange());
+    outputProfile(
+        parameters.profilePath(), *stats, pairCollector.anchorRegions(), pairCollector.irrRegions(), targetUnits,
+        referenceContigInfo);
+    outputLocusTable(
+        parameters.pathToLocusTable(), *stats, pairCollector.anchorRegions(), targetUnits, referenceContigInfo);
+    outputMotifTable(
+        parameters.pathToMotifTable(), *stats, pairCollector.anchorRegions(), pairCollector.irrRegions(), targetUnits,
+        referenceContigInfo);
     return 0;
 }

@@ -24,26 +24,34 @@
 
 #include <string>
 
+#include <boost/optional.hpp>
+
 #include "common/Interval.hh"
 
 class ProfileWorkflowParameters
 {
 public:
     ProfileWorkflowParameters(
-        const std::string& outputPrefix, std::string pathToReads, std::string pathToReference, Interval motifSizeRange,
-        int minMapqOfAnchorRead, int maxMapqOfInrepeatRead);
+        const std::string& outputPrefix, bool logReads, std::string pathToReads, std::string pathToReference,
+        Interval motifSizeRange, int minMapqOfAnchorRead, int maxMapqOfInrepeatRead);
 
     const std::string& profilePath() const { return profilePath_; }
+    const std::string& pathToLocusTable() const { return pathToLocusTable_; }
+    const std::string& pathToMotifTable() const { return pathToMotifTable_; }
     const std::string& pathToReads() const { return pathToReads_; }
     const std::string& pathToReference() const { return pathToReference_; }
+    const boost::optional<std::string>& pathToReadLog() const { return pathToReadLog_; }
     const Interval& motifSizeRange() const { return motifSizeRange_; }
     int minMapqOfAnchorRead() const { return minMapqOfAnchorRead_; }
     int maxMapqOfInrepeatRead() const { return maxMapqOfInrepeatRead_; }
 
 private:
     std::string profilePath_;
+    std::string pathToLocusTable_;
+    std::string pathToMotifTable_;
     std::string pathToReads_;
     std::string pathToReference_;
+    boost::optional<std::string> pathToReadLog_;
     Interval motifSizeRange_;
     int minMapqOfAnchorRead_;
     int maxMapqOfInrepeatRead_;

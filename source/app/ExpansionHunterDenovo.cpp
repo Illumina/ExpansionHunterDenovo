@@ -86,6 +86,7 @@ int runProfileWorkflow(int argc, char** argv)
     int longestUnitToConsider = 20;
     int minMapqOfAnchorRead = 50;
     int maxMapqOfInrepeatRead = 40;
+    bool enableReadLog = false;
 
     // clang-format off
     po::options_description options("Available options");
@@ -97,7 +98,8 @@ int runProfileWorkflow(int argc, char** argv)
         ("min-unit-len", po::value<int>(&shortestUnitToConsider)->default_value(shortestUnitToConsider), "Shortest repeat unit to consider")
         ("max-unit-len", po::value<int>(&longestUnitToConsider)->default_value(longestUnitToConsider), "Longest repeat unit to consider")
         ("min-anchor-mapq", po::value<int>(&minMapqOfAnchorRead)->default_value(minMapqOfAnchorRead), "Minimum MAPQ of an anchor read")
-        ("max-irr-mapq", po::value<int>(&maxMapqOfInrepeatRead)->default_value(maxMapqOfInrepeatRead), "Maximum MAPQ of an in-repeat read");
+        ("max-irr-mapq", po::value<int>(&maxMapqOfInrepeatRead)->default_value(maxMapqOfInrepeatRead), "Maximum MAPQ of an in-repeat read")
+        ("log-reads", po::bool_switch(&enableReadLog), "Log informative reads");
     // clang-format on
 
     po::variables_map optionsMap;
@@ -130,7 +132,9 @@ int runProfileWorkflow(int argc, char** argv)
 
     Interval motifSizeRange(shortestUnitToConsider, longestUnitToConsider);
     ProfileWorkflowParameters params(
-        outputPrefix, pathToReads, pathToReference, motifSizeRange, minMapqOfAnchorRead, maxMapqOfInrepeatRead);
+        outputPrefix, enableReadLog, pathToReads, pathToReference, motifSizeRange, minMapqOfAnchorRead,
+        maxMapqOfInrepeatRead);
+
     return runProfileWorkflow(params);
 }
 

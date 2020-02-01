@@ -11,18 +11,18 @@ do
     --output-prefix str-profiles/${sample}
 done
 
-../../build/ExpansionHunterDenovo merge \
-  --reference reference.fasta \
-  --manifest manifest.tsv \
-  --output-prefix example_dataset
+#../../build/ExpansionHunterDenovo merge \
+#  --reference reference.fasta \
+#  --manifest manifest.tsv \
+#  --output-prefix example_dataset
 
-../../scripts/outlier.py locus \
-  --manifest manifest.tsv \
-  --multisample-profile example_dataset.multisample_profile.json \
-  --output example_dataset.outlier_locus.tsv
+#../../scripts/outlier.py locus \
+#  --manifest manifest.tsv \
+#  --multisample-profile example_dataset.multisample_profile.json \
+#  --output example_dataset.outlier_locus.tsv
 
-../../scripts/outlier.py motif \
-  --manifest manifest.tsv \
-  --multisample-profile example_dataset.multisample_profile.json \
-  --output example_dataset.outlier_motif.tsv
+#../../scripts/outlier.py motif \
+#  --manifest manifest.tsv \
+#  --multisample-profile example_dataset.multisample_profile.json \
+#  --output example_dataset.outlier_motif.tsv
 
