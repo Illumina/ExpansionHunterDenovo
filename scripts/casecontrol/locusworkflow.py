@@ -73,7 +73,10 @@ def output_results(count_table, output_path):
     with open(output_path, "w") as output_file:
         print(header, file=output_file)
         for row in count_table:
-            chrom, start, end = row["region"].replace(":", "-").split("-")
+            sl = row["region"].replace(":", "-").split("-")
+            if len(sl) != 3:
+                raise Exception("Cannot decode region {}".format(row["region"]))
+            chrom, start, end = sl
             unit = row["unit"]
             pvalue, bonf_pvalue = row["pvalue"], row["bonf_pvalue"]
 
