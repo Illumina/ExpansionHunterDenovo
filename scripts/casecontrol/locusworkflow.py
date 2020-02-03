@@ -73,9 +73,13 @@ def output_results(count_table, output_path):
     with open(output_path, "w") as output_file:
         print(header, file=output_file)
         for row in count_table:
-            sl = row["region"].replace(":", "-").split("-")
+            region_encoding = row["region"]
+            if region_encoding == "unaligned":
+                continue
+
+            sl = region_encoding.replace(":", "-").split("-")
             if len(sl) != 3:
-                raise Exception("Cannot decode region {}".format(row["region"]))
+                raise Exception("Cannot decode region {}".format(region_encoding))
             chrom, start, end = sl
             unit = row["unit"]
             pvalue, bonf_pvalue = row["pvalue"], row["bonf_pvalue"]
@@ -127,4 +131,3 @@ def run(params):
     common.correct_pvalues(count_table)
     output_results(count_table, params.output_path)
     logging.info("Done")
-
