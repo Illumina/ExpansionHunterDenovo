@@ -168,8 +168,8 @@ class RegionCollection(object):
 
 def create_region_from_denovo_record(sample_id, region_count):
     region_encoding, count = region_count
-    region_encoding = region_encoding.replace(":", "-").split("-")
-    chrom, start, end = region_encoding
+    chrom, coords = region_encoding.rsplit(":", 1)
+    start, end = coords.split("-")
     start, end = int(start), int(end)
     feture_counts = FeatureCounts({sample_id: count})
     return Region(chrom, start, end, feture_counts)

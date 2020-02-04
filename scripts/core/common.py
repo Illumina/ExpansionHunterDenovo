@@ -73,7 +73,9 @@ def filter_counts_by_magnitude(count_table, count_cutoff):
 def filter_counts_by_region(count_table, target_regions):
     filtered_count_table = []
     for row in count_table:
-        chrom, start, end = row["region"].replace(":", "-").split("-")
+        region_encoding = row["region"]
+        chrom, coords = region_encoding.rsplit(":", 1)
+        start, end = coords.split("-")
         start, end = int(start), int(end)
         region = regiontools.Region(chrom, start, end)
         overlaps_target_region = any(
