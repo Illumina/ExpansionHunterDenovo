@@ -23,6 +23,7 @@
 #include "PairCollector.hh"
 
 #include <cassert>
+#include <cstring>
 
 using std::string;
 using std::to_string;
