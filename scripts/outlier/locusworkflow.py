@@ -67,7 +67,10 @@ def run(params):
     with open(params.output_path, "w") as results_file:
         print(header, file=results_file)
         for row in count_table:
-            contig, start, end = row["region"].replace(":", "-").split("-")
+            contig, coords = row["region"].rsplit(":", 1)
+            start, end = coords.split("-")
+            start, end = int(start), int(end)
+
             top_case_zscore, cases_with_high_counts = common.run_zscore_analysis(
                 sample_status, row["sample_counts"]
             )
@@ -95,4 +98,3 @@ def run(params):
             )
 
     logging.info("Done")
-
