@@ -27,6 +27,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <iomanip>
 
 #include "thirdparty/nlohmann_json/json.hpp"
 #include "thirdparty/spdlog/spdlog.h"
