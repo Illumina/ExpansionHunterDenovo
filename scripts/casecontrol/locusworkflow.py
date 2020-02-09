@@ -77,10 +77,10 @@ def output_results(count_table, output_path):
             if region_encoding == "unaligned":
                 continue
 
-            sl = region_encoding.replace(":", "-").split("-")
-            if len(sl) != 3:
-                raise Exception("Cannot decode region {}".format(region_encoding))
-            chrom, start, end = sl
+            chrom, coords = region_encoding.rsplit(":", 1)
+            start, end = coords.split("-")
+            start, end = int(start), int(end)
+
             unit = row["unit"]
             pvalue, bonf_pvalue = row["pvalue"], row["bonf_pvalue"]
 
