@@ -63,7 +63,7 @@ def run(params):
     manifest = common.load_manifest(params.manifest_path)
     sample_status = common.extract_case_control_assignments(manifest)
 
-    header = "#contig\tstart\tend\tunit\ttop_case_zscore\thigh_case_counts\tall_counts"
+    header = "contig\tstart\tend\tmotif\ttop_case_zscore\thigh_case_counts\tcounts"
     with open(params.output_path, "w") as results_file:
         print(header, file=results_file)
         for row in count_table:
