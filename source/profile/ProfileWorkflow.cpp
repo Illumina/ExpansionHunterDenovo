@@ -23,11 +23,11 @@
 #include "profile/ProfileWorkflow.hh"
 
 #include <fstream>
+#include <iomanip>
 #include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <iomanip>
 
 #include "thirdparty/nlohmann_json/json.hpp"
 #include "thirdparty/spdlog/spdlog.h"
@@ -118,6 +118,11 @@ int getNumUnitsSpanned(double sampleDepth, int readLength, int unitLen, int numI
     return static_cast<int>(lengthInUnits);
 }
 
+double depthNormalize(double sampleDepth, int numIrrs, double targetDepth = 30.0)
+{
+    return (numIrrs * targetDepth) / sampleDepth;
+}
+
 void outputLocusTable(
     const string& tablePath, const SampleRunStats& sampleStats, const RegionsByUnit& irrAnchorRegions,
     const set<string>& targetUnits, const ReferenceContigInfo& contigInfo)
@@ -130,7 +135,8 @@ void outputLocusTable(
         throw std::runtime_error("Failed to open output file " + tablePath + " for writing (" + strerror(errno) + ")");
     }
 
-    tableStream << "contig\tstart\tend\tunit\tnum_anc_irrs\thet_str_size" << std::endl;
+    tableStream << std::setprecision(2) << std::fixed;
+    tableStream << "contig\tstart\tend\tmotif\tnum_anc_irrs\tnorm_num_anc_irrs\thet_str_size" << std::endl;
     for (const auto& unit : targetUnits)
     {
         if (irrAnchorRegions.find(unit) == irrAnchorRegions.end())
@@ -150,19 +156,16 @@ void outputLocusTable(
 
             const string& contigName = contigInfo.getContigName(region.contigId());
             const int numIrrs = region.feature().value();
+            const double normNumIrrs = depthNormalize(sampleStats.depth(), numIrrs);
+
             const int numUnitsSpanned
                 = getNumUnitsSpanned(sampleStats.depth(), sampleStats.meanReadLength(), unit.length(), numIrrs);
             tableStream << contigName << "\t" << region.start() << "\t" << region.end() << "\t" << unit << "\t"
-                        << numIrrs << "\t" << numUnitsSpanned << std::endl;
+                        << numIrrs << "\t" << normNumIrrs << "\t" << numUnitsSpanned << std::endl;
         }
     }
 
     tableStream.close();
-}
-
-double depthNormalize(double sampleDepth, int numIrrs, double targetDepth = 30.0)
-{
-    return (numIrrs * targetDepth) / sampleDepth;
 }
 
 void outputMotifTable(
@@ -178,7 +181,7 @@ void outputMotifTable(
     }
 
     tableStream << std::setprecision(2) << std::fixed;
-    tableStream << "unit\tnum_paired_irrs\tnorm_num_paired_irrs" << std::endl;
+    tableStream << "motif\tnum_paired_irrs\tnorm_num_paired_irrs" << std::endl;
     for (const auto& unit : targetUnits)
     {
         int ancIrrCount = 0;

@@ -1,3 +1,3 @@
-contig	start	end	unit	num_anc_irrs	het_str_size
-StrA	1744	2123	AGC	9	73
-StrB	1695	2130	CCG	19	100
+contig	start	end	motif	num_anc_irrs	norm_num_anc_irrs	het_str_size
+StrA	1744	2123	AGC	9	7.18	73
+StrB	1695	2130	CCG	19	15.16	100

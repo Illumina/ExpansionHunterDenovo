@@ -1,2 +1,2 @@
-contig	start	end	unit	num_anc_irrs	het_str_size
-StrA	1796	2001	AGC	3	57
+contig	start	end	motif	num_anc_irrs	norm_num_anc_irrs	het_str_size
+StrA	1796	2001	AGC	3	2.37	57

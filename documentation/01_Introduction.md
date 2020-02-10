@@ -10,7 +10,7 @@ is suspected to contain a repeat expansion.
 
 The following sections will help you to get started.
 
-Quickstart guides:
+Quick start guides:
 
 - [Installation](02_Installation.md)
 - [Case-control analysis](03_Case_control_quickstart.md)
