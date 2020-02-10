@@ -9,7 +9,7 @@ proportion of cases compared to the rest of the dataset.
 The example dataset used for this section is located in
 `ExpansionHunterDenovo/examples/outlier`. We assume that individual STR
 profiles and the multisample STR profile are computed as described in the
-[quickstart guide to case-control analysis](03_Case_control_quickstart.md).
+[quick start guide to case-control analysis](03_Case_control_quickstart.md).
 
 The outlier analysis is performed by a Python3 script `outlier.py` located
 in the `scripts/` directory. Two types of comparisons are supported:
