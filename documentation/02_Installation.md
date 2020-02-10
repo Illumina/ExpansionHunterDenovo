@@ -2,7 +2,7 @@
 
 ExpansionHunter Denovo is designed for Linux and macOS operating systems.
 Compiled binaries can be downloaded from the [releases
-page](https://github.com/egor-dolzhenko/ExpansionHunterDenovo/releases).
+page](https://github.com/Illumina/ExpansionHunterDenovo/releases).
 Alternatively, the program can be built from source following the
 instructions below.
 
