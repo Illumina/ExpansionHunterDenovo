@@ -86,17 +86,17 @@ Finally, the optional file `<output prefix>.reads.tsv` contains the detailed
 information about all informative read pairs. Here is a description of each
 column.
 
-| Column    | Description                                                                                           |
-|-----------|-------------------------------------------------------------------------------------------------------|
-| pair_type | Type of read pair: in-repeat read and its anchor (anchored_irr) or pair of in-repeat reads (irr_pair) |
-| motif     | Motif of the in-repeat read(s); if motifs differ, they are given by `<read_motif>_<mate_motif>`       |
-| read_type | Type of read: anchor read (`anchor`) or in-repeat read (`irr`)                                        |
-| read_pos  | Position where the read is placed by the aligner (`unaligned` if the read is not aligned)           |
-| mate_type | Type of mate: anchor read (`anchor`) or in-repeat read (`irr`)                                        |
-| mate_pos  | Position where the mate is placed by the aligner (`unaligned` if the mate is not aligned)           |
-| name      | Identifier of the read pair                                                                           |
+| Column    | Description                                                                                               |
+|-----------|-----------------------------------------------------------------------------------------------------------|
+| pair_type | Type of read pair: in-repeat read and its anchor (`anchored_irr`) or pair of in-repeat reads (`irr_pair`) |
+| motif     | Motif of the in-repeat read(s); if motifs differ, they are given by `<read_motif>_<mate_motif>`           |
+| read_type | Type of read: anchor read (`anchor`) or in-repeat read (`irr`)                                            |
+| read_pos  | Position where the read is placed by the aligner (`unaligned` if the read is not aligned)                 |
+| mate_type | Type of mate: anchor read (`anchor`) or in-repeat read (`irr`)                                            |
+| mate_pos  | Position where the mate is placed by the aligner (`unaligned` if the mate is not aligned)                 |
+| name      | Identifier of the read pair                                                                               |
 
-Here is an example describing three informative read pairs.
+Here is an example describing three read pairs.
 
 ```
 pair_type    motif   read_type  read_pos        mate_type  mate_pos        name
