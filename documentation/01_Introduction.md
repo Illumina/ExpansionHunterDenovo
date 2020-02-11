@@ -21,4 +21,3 @@ Manual pages:
 - [Computing STR profiles](05_Computing_profiles.md)
 - [Merging single-sample STR profiles into multisample profiles](06_Merging_profiles.md)
 - [Performing case control analysis](07_Case_control_analysis.md)
-
