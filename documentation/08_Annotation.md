@@ -44,7 +44,7 @@ ExpansionHunter Denovo [case-control](03_Case_control_quickstart.md) or [outlier
 The following command annotates an EHdn results file called `locus_output.tsv` to create an annotated output file `locus_output_annotated.tsv`.
 
 ```bash
-annotate_ehdn.sh \
+bash annotate_ehdn.sh \
     --ehdn-results locus_output.tsv \
     --ehdn-annotated-results locus_output_annotated.tsv \
     --annovar-annotate-variation ~/annovar/annotate_variation.pl \
