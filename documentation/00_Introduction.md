@@ -23,3 +23,4 @@ Manual pages:
 - [Merging single-sample STR profiles into multisample profiles](06_Merging_profiles.md)
 - [Performing case control analysis](07_Case_control_analysis.md)
 - [Annotating locus analysis results](08_Annotation.md)
+- [Repeat Prioritization Strategies](09_Repeat_prioritization_strategies.md)
