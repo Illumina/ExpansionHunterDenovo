@@ -48,7 +48,7 @@ typical workstation. The exact runtime will depend on the sensitivity settings.
 
 ## Documentation
 
-See [documentation](documentation/01_Introduction.md) for installation
+See [documentation](documentation/00_Introduction.md) for installation
 instructions, usage guide, and description of file formats.
 
 ## License

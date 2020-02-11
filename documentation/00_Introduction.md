@@ -12,6 +12,7 @@ The following sections will help you to get started.
 
 Quick start guides:
 
+- [Before you begin](01_Before_you_begin.md)
 - [Installation](02_Installation.md)
 - [Case-control analysis](03_Case_control_quickstart.md)
 - [Outlier analysis](04_Outlier_quickstart.md)
