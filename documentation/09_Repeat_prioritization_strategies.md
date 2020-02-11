@@ -1,4 +1,4 @@
-# Notes on region prioritization strategies during outlier analysis
+# Repeat prioritization strategies during locus outlier analysis
 
 The main takeaway from this document is that it may be reasonable to
 restrict the repeat expansion search space to genic regions or even a small
