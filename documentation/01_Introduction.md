@@ -15,9 +15,11 @@ Quick start guides:
 - [Installation](02_Installation.md)
 - [Case-control analysis](03_Case_control_quickstart.md)
 - [Outlier analysis](04_Outlier_quickstart.md)
+- [Guiding Interpretation of Outlier Hits](08_Interpreting_Outlier_Analysis.md)
 
 Manual pages:
 
 - [Computing STR profiles](05_Computing_profiles.md)
 - [Merging single-sample STR profiles into multisample profiles](06_Merging_profiles.md)
 - [Performing case control analysis](07_Case_control_analysis.md)
+
