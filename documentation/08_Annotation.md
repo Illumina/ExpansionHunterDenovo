@@ -20,7 +20,7 @@ The provided annotation script requires an existing ANNOVAR installation and the
 
 1. Register and download ANNOVAR ([registration link](http://download.openbioinformatics.org/annovar_download_form.php)).
 
-Unpack ANNOVAR to your home directory. (Optionally, you can add `bin/` directory to your `PATH`.)
+Unpack ANNOVAR to your home directory. (Optionally, you can add this directory to your `PATH`.)
 
 ```bash
 tar xvfz annovar.latest.tar.gz
@@ -32,8 +32,8 @@ The remainder of this guide assumes that ANNOVAR is installed in the directory `
 2. Download the refGene annotation database for the genome build you wish to use:
 
 ```bash
-perl ~/annovar/annotate_variation.pl -buildver hg19 -downdb -webfrom annovar refGene humandb/
-perl ~/annovar/annotate_variation.pl -buildver hg38 -downdb -webfrom annovar refGene humandb/
+perl ~/annovar/annotate_variation.pl -buildver hg19 -downdb -webfrom annovar refGene ~/annovar/humandb/
+perl ~/annovar/annotate_variation.pl -buildver hg38 -downdb -webfrom annovar refGene ~/annovar/humandb/
 ```
 
 
@@ -47,7 +47,7 @@ The following command annotates an EHdn results file called `locus_output.tsv` t
 annotate_ehdn.sh \
     --ehdn-results locus_output.tsv \
     --ehdn-annotated-results locus_output_annotated.tsv \
-    --annovar-annotate-variation ~/annovar/bin/annotate_variation.pl \
+    --annovar-annotate-variation ~/annovar/annotate_variation.pl \
     --annovar-humandb ~/annovar/humandb \
     --annovar-buildver hg19
 ```
