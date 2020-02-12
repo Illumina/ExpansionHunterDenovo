@@ -1,14 +1,16 @@
-# Notes on region prioritization strategies during outlier analysis
+# Repeat prioritization strategies during locus outlier analysis
 
 The main takeaway from this document is that it may be reasonable to
 restrict the repeat expansion search space to genic regions or even a small
 subset of the relevant genes. This may help to increase the detection power when
-analyzing data sets containing a small number of case samples.
+analyzing data sets containing a small number of case samples. In this document
+we detail the impact of genic filtering, and inform relevant cutoffs for Z-score
+thresholds when analyzing outlier samples at the locus level. 
 
 ## Known pathogenic repeats are located in genic regions
 
-We used [ANNOVAR-based annotation script](08_Annotation.md) to annotate 35 known
-pathogenic repeats. Here is the breakdown of annotations.
+We used [ANNOVAR-based annotation script](08_Annotation.md) to annotate the output locus
+files from simulations of 35 known pathogenic repeats. Here is the breakdown of annotations:
 
 | Annotation    | Repeat gene                                     |
 |---------------|-------------------------------------------------|
@@ -19,7 +21,9 @@ pathogenic repeats. Here is the breakdown of annotations.
 | ncRNA\_exonic | *ATXN8/ATXN8OS*                                 |
 | No annotation | *NUTMB1*, *NOTCH2NLC*                           |
 
-The table shows that most known pathogenic repeats are located in genic regions.
+The table shows that most known pathogenic repeats are located in genic regions. Note,
+ExpansionHunter Denovo locus script outputs a ~1kb region centered on the identified repeat, 
+so if a repeat is within ~500bp of an exon then it will be labeled as exonic. 
 
 ## Rare expansions in healthy individuals
 
@@ -32,10 +36,11 @@ samples, we repeatedly ran the [outlier analysis](04_Outlier_quickstart.md)
 designating each sample as the "case" and using the remaining 149 samples as
 "controls". We then collected the Z-scores produced by this analysis.
 
-As shown in the Panel A of the figure below, the magnitude of the vast
-majority of Z-scores is less than 10, with only about 5 repeats, on average,
+As shown in the Panel A of the figure below, the vast majority of Z-scores 
+is less than 10, with only about 5 repeats, on average,
 exceeding this threshold. The Panel B shows that the vast majority of the
-identified repeats fall within intergenic and intronic regions.
+identified repeats in this healthy population cohort fall within intergenic 
+and intronic regions. 
 
 ![PolarisRepeats](./images/zscores-in-controls.png)
 
