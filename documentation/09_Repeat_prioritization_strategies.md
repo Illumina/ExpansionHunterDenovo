@@ -37,7 +37,7 @@ majority of Z-scores is less than 10, with only about 5 repeats, on average,
 exceeding this threshold. The Panel B shows that the vast majority of the
 identified repeats fall within intergenic and intronic regions.
 
-![PolarisRepeats](./images/EHdnPolarisOutlierAnalysis_20200210.png)
+![PolarisRepeats](./images/zscores-in-controls.png)
 
 ## Large pathogenic expansions correspond to high Z-scores
 
@@ -51,4 +51,4 @@ bound for the vast majority of rare expansions in controls). Panel B shows that
 repeats corresponding to the Z-score of 10 or above will almost always
 correspond to a outlier ranking in the top 5, with many expansions ranked first. 
 
-![SimulatedRepeats](./images/EHdn_SimulatedDataPlots_20200210.png)
+![SimulatedRepeats](./images/zscores-ranks-sizes.png)
