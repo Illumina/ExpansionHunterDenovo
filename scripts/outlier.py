@@ -59,6 +59,9 @@ def add_locus_command(subparsers):
     help = "TSV file with results of the outlier analysis"
     required_args.add_argument("--output", help=help, required=True)
 
+    help = "BED file with regions to which analysis should be restricted"
+    command_parser.add_argument("--target-regions", help=help, default=None)
+
     return command_parser
 
 
@@ -86,6 +89,7 @@ def run_locus_workflow(args):
         manifest_path=args.manifest,
         multisample_profile_path=args.multisample_profile,
         output_path=args.output,
+        target_region_path=args.target_regions
     )
 
     outlier.locusworkflow.run(params)

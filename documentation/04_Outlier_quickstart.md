@@ -46,8 +46,12 @@ repeats longer than the fragment length. It can be run like so:
     path/to/scripts/outlier.py motif \
             --manifest manifest.tsv \
             --multisample-profile example_dataset.multisample_profile.json \
-            --output example_dataset.outlier_motif.tsv
+            --output example_dataset.outlier_motif.tsv \
+            [--target-regions target_regions.bed]
     ```
+
+  where `--target-regions` is an optional parameter for restricting the analysis
+  to regions in the provided a BED file.
 
   The resulting file `example_dataset.outlier_motif.tsv` contains the following
   information.
