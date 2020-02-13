@@ -68,7 +68,7 @@ def load_target_regions(fname):
 
 
 def output_results(count_table, output_path):
-    header = ["chrom", "start", "end", "motif", "pvalue", "bonf_pvalue", "counts"]
+    header = ["contig", "start", "end", "motif", "pvalue", "bonf_pvalue", "counts"]
     header = "\t".join(header)
     with open(output_path, "w") as output_file:
         print(header, file=output_file)

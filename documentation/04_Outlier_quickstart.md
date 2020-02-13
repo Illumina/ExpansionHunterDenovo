@@ -27,11 +27,20 @@ run like so:
     ```
 
   The resulting file `example_dataset.outlier_locus.tsv` contains the
-  (approximate) repeat region, inferred repeat motif, and z-score for the
-  top ranking case sample.
+  following information.
 
-- The motif-based comparison analyzes the overall enrichment of
-genomes with repeats longer than the fragment length. It can be run like so:
+  | Column           | Description                                                      |
+  |------------------|------------------------------------------------------------------|
+  | contig           | Contig of the repeat region                                      |
+  | start            | Approximate start of the repeat                                  |
+  | end              | Approximate end of the repeat                                    |
+  | motif            | Inferred repeat motif                                            |
+  | top_case_zscore  | Top z-score of a case sample                                     |
+  | high_case_counts | Counts of case samples corresponding to z-score greater than 1.0 |
+  | counts           | Nonzero counts for all samples                                   |
+
+- The motif-based comparison analyzes the overall enrichment of genomes with
+repeats longer than the fragment length. It can be run like so:
 
     ```bash
     path/to/scripts/outlier.py motif \
@@ -39,3 +48,13 @@ genomes with repeats longer than the fragment length. It can be run like so:
             --multisample-profile example_dataset.multisample_profile.json \
             --output example_dataset.outlier_motif.tsv
     ```
+
+  The resulting file `example_dataset.outlier_motif.tsv` contains the following
+  information.
+
+  | Column           | Description                                                      |
+  |------------------|------------------------------------------------------------------|
+  | motif            | Inferred repeat motif                                            |
+  | top_case_zscore  | Top z-score of a case sample                                     |
+  | high_case_counts | Counts of case samples corresponding to z-score greater than 1.0 |
+  | counts           | Nonzero counts for all samples                                   |
