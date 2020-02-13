@@ -72,11 +72,18 @@ run like so:
             --output example_dataset.casecontrol_locus.tsv
     ```
 
-  The resulting file `example_dataset.casecontrol_locus.tsv` contains information
-  about (approximate) repeat region, inferred repeat motif, p-value from Wilcoxon
-  rank-sum test, and depth-normalized counts of anchored in-repeat reads for each
-  sample omitting samples with no reads. These counts can be taken as an
-  approximate measure of the repeat length.
+  The resulting file `example_dataset.casecontrol_locus.tsv` contains the
+  following information.
+  
+  | Column      | Description                         |
+  |-------------|-------------------------------------|
+  | contig      | Contig of the repeat region         |
+  | start       | Approximate start of the repeat     |
+  | end         | Approximate end of the repeat       |
+  | motif       | Inferred repeat motif               |
+  | pvalue      | P-value from Wilcoxon rank-sum test |
+  | bonf_pvalue | P-value after Bonferroni correction |
+  | counts      | Depth-normalized counts of anchored in-repeat reads for each sample (omitting samples with zero count) |
 
 - The motif-based comparison analyzes the overall enrichment of
 genomes with repeats longer than the fragment length. It can be run like so:
@@ -87,3 +94,13 @@ genomes with repeats longer than the fragment length. It can be run like so:
             --multisample-profile example_dataset.multisample_profile.json \
             --output example_dataset.casecontrol_motif.tsv
     ```
+
+  The resulting file `example_dataset.casecontrol_motif.tsv` contains the
+  following information.
+  
+  | Column      | Description                         |
+  |-------------|-------------------------------------|
+  | motif       | Inferred repeat motif               |
+  | pvalue      | P-value from Wilcoxon rank-sum test |
+  | bonf_pvalue | P-value after Bonferroni correction |
+  | counts      | Depth-normalized counts of in-repeat read pairs for each sample (omitting samples with zero count) |
