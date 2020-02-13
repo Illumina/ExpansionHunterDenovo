@@ -31,8 +31,19 @@ from collections import namedtuple
 
 from core import regiontools, common
 
+def load_target_regions(fname):
+    regions = []
+    with open(fname, "r") as bed_file:
+        for line in bed_file:
+            chrom, start, end, *_ = line.split()
+            start, end = int(start), int(end)
+            region = regiontools.Region(chrom, start, end)
+            regions.append(region)
+    return regions
+
+
 Parameters = namedtuple(
-    "Parameters", ["manifest_path", "multisample_profile_path", "output_path"]
+    "Parameters", ["manifest_path", "multisample_profile_path", "output_path", "target_region_path"]
 )
 
 
@@ -59,6 +70,11 @@ def run(params):
     logging.info("Normalizing counts")
     sample_stats = multisample_profile["Parameters"]
     common.depth_normalize_counts(sample_stats, count_table)
+
+    if params.target_region_path:
+        target_regions = load_target_regions(params.target_region_path)
+        logging.info("Restricting analysis to %i regions", len(target_regions))
+        count_table = common.filter_counts_by_region(count_table, target_regions)
 
     manifest = common.load_manifest(params.manifest_path)
     sample_status = common.extract_case_control_assignments(manifest)
