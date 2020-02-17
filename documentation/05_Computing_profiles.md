@@ -104,3 +104,21 @@ anchored_irr CCG     irr        chr1:1734-1735  anchor     chr1:1734-1735  ZXZ55
 irr_pair     AGC     irr        chr2:2431-2432  irr        chr2:2523-2524  ZXZ555:98:HTJW3CZXM:1:2205
 irr_pair     AGC_CCG irr        unaligned       irr        unaligned       ZXZ555:98:HTJW3CZXM:1:2206
 ```
+
+## Generating a "BAMlet" for a given repeat region
+
+Direct analysis of reads supporting a given repeat expansion call offers a
+powerful way to assess EHdn findings. To help with this task, we implemented
+a script `make-bamlet.py` that generates a small BAM file (BAMlet) with
+reads aligned to the repeat region and their mates. The script extends a given
+region (+/-2Kb), extracts reads from the extended region, and then extracts
+mates of the collected reads located anomalously far away (>1Kb).
+
+The script can be run like so.
+
+```bash
+./make-bamlet.py \
+    --bam input_full_bam.bam \
+    --bamlet output_bamlet.bam \
+    --region chr2:6123657-6123714
+```
