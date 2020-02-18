@@ -83,7 +83,11 @@ def run(params):
     with open(params.output_path, "w") as results_file:
         print(header, file=results_file)
         for row in count_table:
-            contig, coords = row["region"].rsplit(":", 1)
+            region_encoding = row["region"]
+            if region_encoding == "unaligned":
+                continue
+
+            contig, coords = region_encoding.rsplit(":", 1)
             start, end = coords.split("-")
             start, end = int(start), int(end)
 
