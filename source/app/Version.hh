@@ -24,5 +24,5 @@
 
 #include <string>
 
-const std::string kProgramVersion = "ExpansionHunter Denovo v0.8.6";
+const std::string kProgramVersion = "ExpansionHunter Denovo v0.9.0";
 
