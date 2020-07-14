@@ -5,7 +5,7 @@ located inside `scripts` directory. The locus-based analysis can be run
 like so:
 
 ```bash
-python3 case_control_analysis.py locus \
+python3 casecontrol.py locus \
     --manifest manifest.txt \
     --multisample-profile multisample_profile.json \
     --output-prefix output
@@ -14,7 +14,7 @@ python3 case_control_analysis.py locus \
 The command to run the motif-based analysis is nearly identical:
 
 ```bash
-python3 case_control_analysis.py motif \
+python3 casecontrol.py motif \
     --manifest manifest.txt \
     --multisample-profile multisample_profile.json \
     --output-prefix output
