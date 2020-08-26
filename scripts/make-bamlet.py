@@ -39,8 +39,8 @@ def is_close(chrom, pos, region):
 
     return True
 
-def jump_for_mate(bam_path, chrom, pos, read_name):
-    bam = pysam.AlignmentFile(bam_path, 'rb')   
+def jump_for_mate(bam_path, genome, chrom, pos, read_name):
+    bam = pysam.AlignmentFile(bam_path, 'rb', reference_filename=genome)
     for al in bam.fetch(chrom, pos, pos + 1):
         if al.is_secondary:
             continue
@@ -51,8 +51,8 @@ def jump_for_mate(bam_path, chrom, pos, read_name):
     print('[WARNING: Could not locate {} at {}:{}]'.format(read_name, chrom, pos))
     return False 
 
-def extract_region(region, bam_path, bamlet_path):
-    bam = pysam.AlignmentFile(bam_path, 'rb')
+def extract_region(region, bam_path, genome, bamlet_path):
+    bam = pysam.AlignmentFile(bam_path, 'rb', reference_filename=genome)
     bamlet = pysam.AlignmentFile(bamlet_path, 'wb', template=bam)
 
     mates = {}
@@ -77,7 +77,7 @@ def extract_region(region, bam_path, bamlet_path):
 
         if not is_close(mate_chrom, mate_pos, region):
             print('[Looking for mate of {} in {}:{}]'.format(read_name, mate_chrom, mate_pos))
-            mate = jump_for_mate(bam_path, mate_chrom, mate_pos, read_name)
+            mate = jump_for_mate(bam_path, genome, mate_chrom, mate_pos, read_name)
             if mate:
                 reads.append(mate)
 
@@ -92,6 +92,8 @@ def extract_region(region, bam_path, bamlet_path):
 parser = argparse.ArgumentParser(description='A script to generate BAMlets')
 parser.add_argument('--bam', type=str, nargs=1,
                     required=True, help='Input BAM file')
+parser.add_argument('--reference', type=str, nargs=1,
+                    required=True, help='FASTA file with reference assembly')
 parser.add_argument('--region', type=str, nargs=1,
                     required=True, help='Region from which to extract reads (chr:start-end)')
 parser.add_argument('--bamlet', type=str, nargs=1,
@@ -99,6 +101,7 @@ parser.add_argument('--bamlet', type=str, nargs=1,
 
 args = parser.parse_args()
 bam_path = args.bam[0]
+genome = args.reference[0]
 region = args.region[0]
 bamlet_path = args.bamlet[0]
 
@@ -107,4 +110,4 @@ extension_len = 2000
 start, end = int(start) - extension_len, int(end) + extension_len
 region = (chrom, start, end)
 
-extract_region(region, bam_path, bamlet_path)
+extract_region(region, bam_path, genome, bamlet_path)
