@@ -161,7 +161,7 @@ void loadPairedIrrProfile(
 void loadSampleProfile(
     const ManifestEntry& sampleInfo, const ReferenceContigInfo& contigInfo,
     MultisampleAnchoredIrrProfile& anchoredIrrProfile, MultisampleIrrPairProfile& pairedIrrProfile,
-    SampleIdToSampleParameters& parametersForSamples)
+    SampleIdToSampleParameters& parametersForSamples, int shortestUnit, int longestUnit)
 {
     std::ifstream profileFile(sampleInfo.path);
     if (!profileFile)
@@ -184,7 +184,7 @@ void loadSampleProfile(
         {
             depth = record.value();
         }
-        else
+        else if (shortestUnit <= record.key().length() && record.key().length() <= longestUnit)
         {
             const string& motif = record.key();
             loadAnchorInfo(contigInfo, sampleInfo.sample, motif, record.value(), anchoredIrrProfile);
@@ -278,7 +278,9 @@ int runMergeWorkflow(const MergeWorkflowParameters& parameters)
     for (const auto& sampleInfo : manifest)
     {
         spdlog::info("Loading STR profile of {}", sampleInfo.sample);
-        loadSampleProfile(sampleInfo, contigInfo, anchoredIrrProfile, irrPairProfile, parametersForSamples);
+        loadSampleProfile(
+            sampleInfo, contigInfo, anchoredIrrProfile, irrPairProfile, parametersForSamples,
+            parameters.shortestUnitToConsider(), parameters.longestUnitToConsider());
         sampleCount++;
 
         if (sampleCount % kNormalizationStride == 0)
