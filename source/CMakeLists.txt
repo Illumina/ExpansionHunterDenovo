@@ -19,6 +19,7 @@ add_subdirectory(reads)
 add_subdirectory(region)
 add_subdirectory(profile)
 add_subdirectory(merge)
+add_subdirectory(outlier)
 
 add_executable(ExpansionHunterDenovo
         app/ExpansionHunterDenovo.cpp
@@ -28,7 +29,7 @@ add_executable(ExpansionHunterDenovo
 target_include_directories(ExpansionHunterDenovo PUBLIC ${CMAKE_SOURCE_DIR})
 target_link_libraries(ExpansionHunterDenovo PRIVATE
         Boost::system Boost::program_options
-        common region profileworkflow mergeworkflow)
+        common region profileworkflow mergeworkflow outlierworkflow)
 
 add_executable(UnitTests
         tests/UnitTests.cpp

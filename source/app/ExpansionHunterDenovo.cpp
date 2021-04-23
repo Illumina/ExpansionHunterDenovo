@@ -22,23 +22,26 @@
 
 #include <iostream>
 
+#include <boost/optional.hpp>
 #include <boost/program_options.hpp>
 
 #include "thirdparty/spdlog/spdlog.h"
 
 #include "app/Version.hh"
 #include "merge/MergeWorkflow.hh"
+#include "outlier/OutlierWorkflow.hh"
 #include "profile/ProfileWorkflow.hh"
 
 namespace po = boost::program_options;
 
+using boost::optional;
 using std::string;
 
-enum class Workflow
-{
-    kProfile,
-    kMerge
-};
+// enum class Workflow
+//{
+//    kProfile,
+//    kMerge
+//};
 
 int readBaselineOptions(int argc, char** argv)
 {
@@ -47,7 +50,8 @@ int readBaselineOptions(int argc, char** argv)
         + "\n\nUsage: ExpansionHunterDenovo <command> [options]\n\n"
         + "Commands:\n"
         + " profile  Compute genome-wide STR profile\n"
-        + " merge    Generate multisample STR profile from single-sample profiles";
+        + " merge    Generate multisample STR profile from single-sample profiles\n"
+        + " outlier  Run outlier analysis";
 
     po::options_description options("Available commands");
     options.add_options()
@@ -192,6 +196,57 @@ int runMergeWorkflow(int argc, char** argv)
     return runMergeWorkflow(params);
 }
 
+int runOutlierWorkflow(int argc, char** argv)
+{
+    string helpHeader = "Usage: ExpansionHunterDenovo outlier [options]\n\n";
+
+    string pathToManifest;
+    string pathToMultisampleProfile;
+    optional<string> pathToTargetRegions;
+    string outputPrefix;
+
+    // clang-format off
+    po::options_description options("Available options");
+    options.add_options()
+        ("help", "Print help message")
+        ("manifest", po::value<string>(&pathToManifest)->required(), "TSV with sample names and absolute paths")
+        ("multisample-profile", po::value<string>(&pathToMultisampleProfile)->required(), "JSON file with combined counts of anchored in-repeat reads")
+        ("target-regions", po::value<optional<string>>(&pathToTargetRegions)->default_value(boost::none, ""), "BED file with regions to which analysis should be restricted")
+        ("output-prefix", po::value<string>(&outputPrefix)->required(), "Prefix for the output files");
+    // clang-format on
+
+    po::variables_map optionsMap;
+
+    if (argc == 1)
+    {
+        std::cerr << helpHeader << options << std::endl;
+        return 1;
+    }
+
+    try
+    {
+        po::store(po::command_line_parser(argc, argv).options(options).run(), optionsMap);
+
+        if (optionsMap.count("help"))
+        {
+            std::cerr << helpHeader << options << std::endl;
+            return 0;
+        }
+
+        po::notify(optionsMap);
+    }
+    catch (const std::exception& exception)
+    {
+        std::cerr << exception.what() << std::endl;
+        return 1;
+    }
+
+    spdlog::info("Starting {} outlier workflow", kProgramVersion);
+
+    OutlierWorkflowParameters params(outputPrefix, pathToManifest, pathToMultisampleProfile, pathToTargetRegions);
+    return runOutlierWorkflow(params);
+}
+
 int main(int argc, char** argv)
 {
     try
@@ -209,6 +264,10 @@ int main(int argc, char** argv)
         else if (command == "merge")
         {
             return runMergeWorkflow(argc - 1, argv + 1);
+        }
+        else if (command == "outlier")
+        {
+            return runOutlierWorkflow(argc - 1, argv + 1);
         }
         else
         {
