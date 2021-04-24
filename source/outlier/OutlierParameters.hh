@@ -30,13 +30,15 @@ class OutlierWorkflowParameters
 {
 public:
     OutlierWorkflowParameters(
-        const std::string& outputPrefix, std::string pathToManifest, std::string pathToMultisampleProfile,
-        boost::optional<std::string> pathToTargetRegions);
+        const std::string& outputPrefix, std::string pathToReference, std::string pathToManifest,
+        std::string pathToMultisampleProfile, boost::optional<std::string> pathToTargetRegions);
 
+    const std::string& pathToReference() const { return pathToReference_; }
     const std::string& pathToMultisampleProfile() const { return pathToMultisampleProfile_; }
     const std::string& pathToManifest() const { return pathToManifest_; }
 
 private:
+    std::string pathToReference_;
     std::string pathToMultisampleProfile_;
     std::string pathToManifest_;
     boost::optional<std::string> pathToTargetRegions_;

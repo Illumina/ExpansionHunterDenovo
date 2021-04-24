@@ -26,9 +26,10 @@ using boost::optional;
 using std::string;
 
 OutlierWorkflowParameters::OutlierWorkflowParameters(
-    const string& outputPrefix, string pathToManifest, string pathToMultisampleProfile,
+    const string& outputPrefix, string pathToReference, string pathToManifest, string pathToMultisampleProfile,
     optional<string> pathToTargetRegions)
-    : pathToManifest_(std::move(pathToManifest))
+    : pathToReference_(std::move(pathToReference))
+    , pathToManifest_(std::move(pathToManifest))
     , pathToMultisampleProfile_(std::move(pathToMultisampleProfile))
     , pathToTargetRegions_(std::move(pathToTargetRegions))
     , pathToLocusAnalysis_(outputPrefix + ".outlier_locus.tsv")
