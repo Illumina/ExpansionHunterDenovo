@@ -88,6 +88,60 @@ vector<AnchoredIrrCounts> extractAnchoredIrrCounts(const Reference& reference, c
     return irrCountsByRegionAndMotif;
 }
 
+struct SampleStats
+{
+    SampleStats(double depth, int readLength)
+        : depth(depth)
+        , readLength(readLength)
+    {
+    }
+    double depth;
+    int readLength;
+};
+
+unordered_map<string, SampleStats> extractSampleStats(const Json& multisampleProfile)
+{
+    unordered_map<string, SampleStats> statsBySample;
+    if (!multisampleProfile.contains("Parameters"))
+    {
+        throw std::runtime_error("Malformed multisample profile: Sample parameters are missing");
+    }
+
+    const auto& params = multisampleProfile["Parameters"];
+
+    if (!params.contains("Depths"))
+    {
+        throw std::runtime_error("Malformed multisample profile: Sample parameters are missing depths");
+    }
+    const auto& depths = params["Depths"];
+    for (const auto& sampleAndDepth : depths.items())
+    {
+        const string& sample = sampleAndDepth.key();
+        double depth = sampleAndDepth.value();
+        statsBySample.emplace(sample, SampleStats(depth, -1));
+    }
+
+    if (!params.contains("ReadLengths"))
+    {
+        throw std::runtime_error("Malformed multisample profile: Sample parameters are missing read lengths");
+    }
+
+    const auto& readLengths = params["ReadLengths"];
+    for (const auto& sampleAndReadLength : readLengths.items())
+    {
+        const string& sample = sampleAndReadLength.key();
+        int readLength = sampleAndReadLength.value();
+        auto record = statsBySample.find(sample);
+        if (record == statsBySample.end())
+        {
+            throw std::runtime_error("Malformed multisample profile: Missing read length for " + sample);
+        }
+        record->second.readLength = readLength;
+    }
+
+    return statsBySample;
+}
+
 int runOutlierWorkflow(const OutlierWorkflowParameters& parameters)
 {
     Reference reference(parameters.pathToReference());
@@ -102,6 +156,10 @@ int runOutlierWorkflow(const OutlierWorkflowParameters& parameters)
     multisampleProfileFile >> multisampleProfile;
 
     auto anchoredIrrCountsByRegion = extractAnchoredIrrCounts(reference, multisampleProfile);
+    spdlog::info("Loaded {} regions", anchoredIrrCountsByRegion.size());
+
+    spdlog::info("Normalizing counts");
+    auto sampleStats = extractSampleStats(multisampleProfile);
 
     for (const auto& regionCounts : anchoredIrrCountsByRegion)
     {
@@ -112,7 +170,13 @@ int runOutlierWorkflow(const OutlierWorkflowParameters& parameters)
         }
     }
 
-    // std::cerr << multisampleProfile;
+    auto statsBySample = extractSampleStats(multisampleProfile);
+
+    for (const auto& sampleAndStats : statsBySample)
+    {
+        std::cerr << sampleAndStats.first << "\t" << sampleAndStats.second.depth << "\t"
+                  << sampleAndStats.second.readLength << std::endl;
+    }
 
     return 0;
 }
