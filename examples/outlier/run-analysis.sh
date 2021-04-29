@@ -17,6 +17,7 @@
 #  --output-prefix example_dataset
 
 ../../source/cmake-build-debug/ExpansionHunterDenovo outlier \
+  --reference reference.fasta \
   --manifest manifest.tsv \
   --multisample-profile example_dataset.multisample_profile.json \
   --output-prefix example_dataset

@@ -46,8 +46,21 @@ struct AnchoredIrrCounts
     }
     GenomicRegion region;
     string motif;
-    unordered_map<string, int> countBySample;
+    unordered_map<string, double> countBySample;
 };
+
+struct SampleStats
+{
+    SampleStats(double depth, int readLength)
+        : depth(depth)
+        , readLength(readLength)
+    {
+    }
+    double depth;
+    int readLength;
+};
+
+using StatsBySample = unordered_map<string, SampleStats>;
 
 vector<AnchoredIrrCounts> extractAnchoredIrrCounts(const Reference& reference, const Json& multisampleProfile)
 {
@@ -78,7 +91,7 @@ vector<AnchoredIrrCounts> extractAnchoredIrrCounts(const Reference& reference, c
             for (const auto& sampleAndCount : countsBySample.items())
             {
                 const string& sample = sampleAndCount.key();
-                int count = sampleAndCount.value();
+                double count = sampleAndCount.value();
                 anchoredIrrCounts.countBySample.emplace(sample, count);
             }
             irrCountsByRegionAndMotif.emplace_back(anchoredIrrCounts);
@@ -88,18 +101,7 @@ vector<AnchoredIrrCounts> extractAnchoredIrrCounts(const Reference& reference, c
     return irrCountsByRegionAndMotif;
 }
 
-struct SampleStats
-{
-    SampleStats(double depth, int readLength)
-        : depth(depth)
-        , readLength(readLength)
-    {
-    }
-    double depth;
-    int readLength;
-};
-
-unordered_map<string, SampleStats> extractSampleStats(const Json& multisampleProfile)
+StatsBySample extractSampleStats(const Json& multisampleProfile)
 {
     unordered_map<string, SampleStats> statsBySample;
     if (!multisampleProfile.contains("Parameters"))
@@ -142,6 +144,27 @@ unordered_map<string, SampleStats> extractSampleStats(const Json& multisamplePro
     return statsBySample;
 }
 
+void depthNormalize(
+    const StatsBySample& statsBySample, double targetDepth, vector<AnchoredIrrCounts>& anchoredIrrCountTable)
+{
+    for (auto& anchoredIrrCount : anchoredIrrCountTable)
+    {
+        for (auto& sampleAndCount : anchoredIrrCount.countBySample)
+        {
+            const auto& sample = sampleAndCount.first;
+            double& count = sampleAndCount.second;
+            auto record = statsBySample.find(sample);
+            if (record == statsBySample.end())
+            {
+                throw std::runtime_error("Missing stats for sample " + sample);
+            }
+
+            const double actualDepth = record->second.depth;
+            count = targetDepth * count / actualDepth;
+        }
+    }
+}
+
 int runOutlierWorkflow(const OutlierWorkflowParameters& parameters)
 {
     Reference reference(parameters.pathToReference());
@@ -176,6 +199,18 @@ int runOutlierWorkflow(const OutlierWorkflowParameters& parameters)
     {
         std::cerr << sampleAndStats.first << "\t" << sampleAndStats.second.depth << "\t"
                   << sampleAndStats.second.readLength << std::endl;
+    }
+
+    const double targetDepth = 40;
+    depthNormalize(statsBySample, targetDepth, anchoredIrrCountsByRegion);
+
+    for (const auto& regionCounts : anchoredIrrCountsByRegion)
+    {
+        std::cerr << regionCounts.region << " " << regionCounts.motif << std::endl;
+        for (const auto& sampleAndCount : regionCounts.countBySample)
+        {
+            std::cerr << " " << sampleAndCount.first << " " << sampleAndCount.second << std::endl;
+        }
     }
 
     return 0;
