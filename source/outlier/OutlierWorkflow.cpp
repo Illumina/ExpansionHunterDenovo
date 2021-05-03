@@ -29,25 +29,15 @@
 #include "thirdparty/nlohmann_json/json.hpp"
 #include "thirdparty/spdlog/spdlog.h"
 
+#include "common/Manifest.hh"
 #include "io/Reference.hh"
+#include "outlier/ZScoreAnalysis.hh"
 #include "region/GenomicRegion.hh"
 
 using Json = nlohmann::json;
 using std::string;
 using std::unordered_map;
 using std::vector;
-
-struct AnchoredIrrCounts
-{
-    AnchoredIrrCounts(GenomicRegion region, string motif)
-        : region(region)
-        , motif(std::move(motif))
-    {
-    }
-    GenomicRegion region;
-    string motif;
-    unordered_map<string, double> countBySample;
-};
 
 struct SampleStats
 {
@@ -165,6 +155,28 @@ void depthNormalize(
     }
 }
 
+void performLocusAnalysis(
+    const Reference& genome, const Manifest& manifest, const vector<AnchoredIrrCounts>& irrCountsByRegionAndMotif,
+    const string& outputPath)
+{
+    std::ofstream outputFile(outputPath);
+    if (!outputFile)
+    {
+        throw std::logic_error("Unable to write to " + outputPath);
+    }
+    outputFile << "contig\tstart\tend\tmotif\ttop_case_zscore\thigh_case_counts\tcounts" << std::endl;
+    for (const auto& irrCounts : irrCountsByRegionAndMotif)
+    {
+        const auto& region = irrCounts.region;
+        const auto& contig = genome.contigInfo().getContigName(region.contigId());
+
+        auto results = analyzeZScores(manifest, irrCounts);
+
+        outputFile << contig << "\t" << region.start() << "\t" << region.end() << "\t" << irrCounts.motif << "\t";
+        outputFile << std::endl;
+    }
+}
+
 int runOutlierWorkflow(const OutlierWorkflowParameters& parameters)
 {
     Reference reference(parameters.pathToReference());
@@ -212,6 +224,10 @@ int runOutlierWorkflow(const OutlierWorkflowParameters& parameters)
             std::cerr << " " << sampleAndCount.first << " " << sampleAndCount.second << std::endl;
         }
     }
+
+    vector<string> orderedSamples;
+    auto manifest = loadManifest(parameters.pathToManifest(), orderedSamples);
+    performLocusAnalysis(reference, manifest, anchoredIrrCountsByRegion, parameters.pathToLocusResults());
 
     return 0;
 }

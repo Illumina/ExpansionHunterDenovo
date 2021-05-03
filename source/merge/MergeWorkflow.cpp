@@ -35,6 +35,7 @@
 #include "thirdparty/spdlog/spdlog.h"
 
 #include "MergeParameters.hh"
+#include "common/Manifest.hh"
 #include "io/Reference.hh"
 #include "merge/MultisampleProfile.hh"
 
@@ -55,79 +56,7 @@ struct SampleParameters
     int readLength;
     double depth;
 };
-using SampleIdToSampleParameters = unordered_map<string, SampleParameters>;
-
-enum class SampleStatus
-{
-    kCase,
-    kControl
-};
-
-SampleStatus decodeSampleStatus(const string& encoding)
-{
-    if (encoding == "case")
-    {
-        return SampleStatus::kCase;
-    }
-    else if (encoding == "control")
-    {
-        return SampleStatus::kControl;
-    }
-    else
-    {
-        throw std::runtime_error(encoding + " is not a valid sample status");
-    }
-}
-
-struct ManifestEntry
-{
-    ManifestEntry(string sample, SampleStatus status, string path)
-        : sample(std::move(sample))
-        , status(status)
-        , path(std::move(path))
-    {
-    }
-
-    ManifestEntry(string sample, const string& statusEncoding, string path)
-        : sample(std::move(sample))
-        , status(decodeSampleStatus(statusEncoding))
-        , path(std::move(path))
-    {
-    }
-
-    string sample;
-    SampleStatus status;
-    string path;
-};
-
-using Manifest = vector<ManifestEntry>;
-
-Manifest loadManifest(const string& path)
-{
-    Manifest manifest;
-
-    std::ifstream manifestFile(path);
-    if (!manifestFile)
-    {
-        throw std::runtime_error("Unable to load manifest from " + path);
-    }
-
-    string line;
-    while (std::getline(manifestFile, line))
-    {
-        std::istringstream decoder(line);
-        string sample;
-        string statusEncoding;
-        string path;
-        if (!(decoder >> sample >> statusEncoding >> path))
-        {
-            throw std::runtime_error("Unable to decode manifest line " + line);
-        }
-        manifest.emplace_back(sample, statusEncoding, path);
-    }
-
-    return manifest;
-}
+using SampleIdToSampleParameters = std::unordered_map<std::string, SampleParameters>;
 
 void loadAnchorInfo(
     const ReferenceContigInfo& contigInfo, const string& sampleId, const string& motif, const Json& record,
@@ -159,7 +88,7 @@ void loadPairedIrrProfile(
 }
 
 void loadSampleProfile(
-    const ManifestEntry& sampleInfo, const ReferenceContigInfo& contigInfo,
+    const std::string& sample, const ManifestEntry& sampleInfo, const ReferenceContigInfo& contigInfo,
     MultisampleAnchoredIrrProfile& anchoredIrrProfile, MultisampleIrrPairProfile& pairedIrrProfile,
     SampleIdToSampleParameters& parametersForSamples, int shortestUnit, int longestUnit)
 {
@@ -187,22 +116,22 @@ void loadSampleProfile(
         else if (shortestUnit <= record.key().length() && record.key().length() <= longestUnit)
         {
             const string& motif = record.key();
-            loadAnchorInfo(contigInfo, sampleInfo.sample, motif, record.value(), anchoredIrrProfile);
-            loadPairedIrrProfile(sampleInfo.sample, motif, record.value(), pairedIrrProfile);
+            loadAnchorInfo(contigInfo, sample, motif, record.value(), anchoredIrrProfile);
+            loadPairedIrrProfile(sample, motif, record.value(), pairedIrrProfile);
         }
     }
 
     if (readLength == 0)
     {
-        throw std::runtime_error("Read length appears to be unset for " + sampleInfo.sample);
+        throw std::runtime_error("Read length appears to be unset for " + sample);
     }
 
     if (depth == -1)
     {
-        throw std::runtime_error("Depth appears to be unset for " + sampleInfo.sample);
+        throw std::runtime_error("Depth appears to be unset for " + sample);
     }
 
-    parametersForSamples.emplace(sampleInfo.sample, SampleParameters(readLength, depth));
+    parametersForSamples.emplace(sample, SampleParameters(readLength, depth));
 }
 
 void writeMultisampleProfile(
@@ -266,7 +195,8 @@ int runMergeWorkflow(const MergeWorkflowParameters& parameters)
     Reference reference(parameters.pathToReference());
     const ReferenceContigInfo& contigInfo = reference.contigInfo();
 
-    Manifest manifest = loadManifest(parameters.pathToManifest());
+    vector<string> orderedSamples;
+    Manifest manifest = loadManifest(parameters.pathToManifest(), orderedSamples);
     spdlog::info("Loaded manifest describing {} samples", manifest.size());
 
     MultisampleAnchoredIrrProfile anchoredIrrProfile;
@@ -275,11 +205,12 @@ int runMergeWorkflow(const MergeWorkflowParameters& parameters)
 
     int sampleCount = 0;
     int kNormalizationStride = 50;
-    for (const auto& sampleInfo : manifest)
+    for (const auto& sample : orderedSamples)
     {
-        spdlog::info("Loading STR profile of {}", sampleInfo.sample);
+        const auto& sampleInfo = manifest.find(sample)->second;
+        spdlog::info("Loading STR profile of {}", sample);
         loadSampleProfile(
-            sampleInfo, contigInfo, anchoredIrrProfile, irrPairProfile, parametersForSamples,
+            sample, sampleInfo, contigInfo, anchoredIrrProfile, irrPairProfile, parametersForSamples,
             parameters.shortestUnitToConsider(), parameters.longestUnitToConsider());
         sampleCount++;
 

@@ -1,6 +1,6 @@
 //
 // ExpansionHunter Denovo
-// Copyright 2016-2020 Illumina, Inc.
+// Copyright 2016-2021 Illumina, Inc.
 // All rights reserved.
 //
 // Author: Egor Dolzhenko <edolzhenko@illumina.com>,
@@ -20,19 +20,26 @@
 //
 //
 
-#include "outlier/OutlierParameters.hh"
+#pragma once
 
-using boost::optional;
-using std::string;
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-OutlierWorkflowParameters::OutlierWorkflowParameters(
-    const string& outputPrefix, string pathToReference, string pathToManifest, string pathToMultisampleProfile,
-    optional<string> pathToTargetRegions)
-    : pathToReference_(std::move(pathToReference))
-    , pathToManifest_(std::move(pathToManifest))
-    , pathToMultisampleProfile_(std::move(pathToMultisampleProfile))
-    , pathToTargetRegions_(std::move(pathToTargetRegions))
-    , pathToLocusResults_(outputPrefix + ".outlier_locus.tsv")
-    , pathToMotifResults_(outputPrefix + ".outlier_motif.tsv")
+enum class SampleStatus
 {
-}
+    kCase,
+    kControl
+};
+
+struct ManifestEntry
+{
+    ManifestEntry(SampleStatus status, std::string path);
+    ManifestEntry(const std::string& statusEncoding, std::string path);
+    SampleStatus status;
+    std::string path;
+};
+
+using Manifest = std::unordered_map<std::string, ManifestEntry>;
+
+Manifest loadManifest(const std::string& path, std::vector<std::string>& orderedSamples);

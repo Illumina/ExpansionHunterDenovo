@@ -36,6 +36,7 @@ public:
     const std::string& pathToReference() const { return pathToReference_; }
     const std::string& pathToMultisampleProfile() const { return pathToMultisampleProfile_; }
     const std::string& pathToManifest() const { return pathToManifest_; }
+    const std::string& pathToLocusResults() const { return pathToLocusResults_; }
 
 private:
     std::string pathToReference_;
@@ -43,6 +44,6 @@ private:
     std::string pathToManifest_;
     boost::optional<std::string> pathToTargetRegions_;
 
-    std::string pathToLocusAnalysis_;
-    std::string pathToMotifAnalysis_;
+    std::string pathToLocusResults_;
+    std::string pathToMotifResults_;
 };

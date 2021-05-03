@@ -1,6 +1,6 @@
 //
 // ExpansionHunter Denovo
-// Copyright 2016-2020 Illumina, Inc.
+// Copyright 2016-2021 Illumina, Inc.
 // All rights reserved.
 //
 // Author: Egor Dolzhenko <edolzhenko@illumina.com>,
@@ -20,19 +20,31 @@
 //
 //
 
-#include "outlier/OutlierParameters.hh"
+#pragma once
 
-using boost::optional;
-using std::string;
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-OutlierWorkflowParameters::OutlierWorkflowParameters(
-    const string& outputPrefix, string pathToReference, string pathToManifest, string pathToMultisampleProfile,
-    optional<string> pathToTargetRegions)
-    : pathToReference_(std::move(pathToReference))
-    , pathToManifest_(std::move(pathToManifest))
-    , pathToMultisampleProfile_(std::move(pathToMultisampleProfile))
-    , pathToTargetRegions_(std::move(pathToTargetRegions))
-    , pathToLocusResults_(outputPrefix + ".outlier_locus.tsv")
-    , pathToMotifResults_(outputPrefix + ".outlier_motif.tsv")
+#include "common/Manifest.hh"
+#include "region/GenomicRegion.hh"
+
+struct AnchoredIrrCounts
 {
-}
+    AnchoredIrrCounts(GenomicRegion region, std::string motif)
+        : region(region)
+        , motif(std::move(motif))
+    {
+    }
+    GenomicRegion region;
+    std::string motif;
+    std::unordered_map<std::string, double> countBySample;
+};
+
+struct ZScoreAnalysisResults
+{
+    double topZScore;
+    std::vector<std::string> casesWithHighCounts;
+};
+
+ZScoreAnalysisResults analyzeZScores(const Manifest& manifest, const AnchoredIrrCounts& irrCounts);

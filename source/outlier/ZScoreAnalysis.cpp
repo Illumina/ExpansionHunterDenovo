@@ -1,6 +1,6 @@
 //
 // ExpansionHunter Denovo
-// Copyright 2016-2020 Illumina, Inc.
+// Copyright 2016-2021 Illumina, Inc.
 // All rights reserved.
 //
 // Author: Egor Dolzhenko <edolzhenko@illumina.com>,
@@ -20,19 +20,6 @@
 //
 //
 
-#include "outlier/OutlierParameters.hh"
+#include "outlier/ZScoreAnalysis.hh"
 
-using boost::optional;
-using std::string;
-
-OutlierWorkflowParameters::OutlierWorkflowParameters(
-    const string& outputPrefix, string pathToReference, string pathToManifest, string pathToMultisampleProfile,
-    optional<string> pathToTargetRegions)
-    : pathToReference_(std::move(pathToReference))
-    , pathToManifest_(std::move(pathToManifest))
-    , pathToMultisampleProfile_(std::move(pathToMultisampleProfile))
-    , pathToTargetRegions_(std::move(pathToTargetRegions))
-    , pathToLocusResults_(outputPrefix + ".outlier_locus.tsv")
-    , pathToMotifResults_(outputPrefix + ".outlier_motif.tsv")
-{
-}
+ZScoreAnalysisResults analyzeZScores(const Manifest& manifest, const AnchoredIrrCounts& irrCounts) { return { 1, {} }; }
