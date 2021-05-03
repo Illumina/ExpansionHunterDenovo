@@ -23,6 +23,7 @@
 #include "outlier/OutlierWorkflow.hh"
 
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -164,7 +165,8 @@ void performLocusAnalysis(
     {
         throw std::logic_error("Unable to write to " + outputPath);
     }
-    outputFile << "contig\tstart\tend\tmotif\ttop_case_zscore\thigh_case_counts\tcounts" << std::endl;
+    outputFile << std::fixed << std::setprecision(2);
+    outputFile << "contig\tstart\tend\tmotif\ttop_case_zscore\thigh_case_counts\tnon_zero_counts" << std::endl;
     for (const auto& irrCounts : irrCountsByRegionAndMotif)
     {
         const auto& region = irrCounts.region;
@@ -172,7 +174,33 @@ void performLocusAnalysis(
 
         auto results = analyzeZScores(manifest, irrCounts);
 
+        if (results.casesWithHighCounts.empty())
+        {
+            continue;
+        }
+
         outputFile << contig << "\t" << region.start() << "\t" << region.end() << "\t" << irrCounts.motif << "\t";
+        outputFile << results.topZScore << "\t";
+        for (int sampleIndex = 0; sampleIndex != results.casesWithHighCounts.size(); ++sampleIndex)
+        {
+            const auto& sample = results.casesWithHighCounts[sampleIndex];
+            outputFile << sample << ":" << irrCounts.countBySample.find(sample)->second;
+            if (sampleIndex + 1 != results.casesWithHighCounts.size())
+            {
+                outputFile << ",";
+            }
+        }
+        outputFile << "\t";
+
+        for (auto record = irrCounts.countBySample.begin(); record != irrCounts.countBySample.end(); ++record)
+        {
+            outputFile << record->second;
+            if (std::next(record) != irrCounts.countBySample.end())
+            {
+                outputFile << ",";
+            }
+        }
+
         outputFile << std::endl;
     }
 }

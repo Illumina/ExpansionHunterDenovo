@@ -24,8 +24,10 @@
 
 #include <algorithm>
 #include <random>
+#include <string>
 #include <vector>
 
+using std::string;
 using std::vector;
 
 ZScoreAnalysisResults analyzeZScores(const Manifest& manifest, const AnchoredIrrCounts& irrCounts)
@@ -77,5 +79,35 @@ ZScoreAnalysisResults analyzeZScores(const Manifest& manifest, const AnchoredIrr
     }
     std::cerr << std::endl;
 
-    return { 1, {} };
+    const double mean = std::accumulate(quantiles.begin(), quantiles.end(), 0.0) / quantiles.size();
+
+    double variance = 0;
+    for (auto quantile : quantiles)
+    {
+        variance += std::pow(quantile - mean, 2);
+    }
+    variance /= quantiles.size();
+    const double sigma = std::max(std::sqrt(variance), 1.0);
+
+    std::cerr << mean << " " << sigma << std::endl;
+
+    double topZScore = -1;
+    vector<string> casesWithHighCounts;
+    for (const auto& sampleAndCount : irrCounts.countBySample)
+    {
+        const auto& sample = sampleAndCount.first;
+        const double count = sampleAndCount.second;
+        const auto sampleStatus = manifest.find(sample)->second.status;
+        if (sampleStatus == SampleStatus::kCase)
+        {
+            const double zScore = (count - mean) / sigma;
+            if (zScore > 1.0)
+            {
+                topZScore = std::max(topZScore, zScore);
+                casesWithHighCounts.push_back(sample);
+            }
+        }
+    }
+
+    return { topZScore, casesWithHighCounts };
 }
