@@ -72,13 +72,6 @@ ZScoreAnalysisResults analyzeZScores(const Manifest& manifest, const AnchoredIrr
         quantiles.push_back(resample[targetQuantileIndex]);
     }
 
-    // std::sort(resample.begin(), resample.end());
-    for (auto value : quantiles)
-    {
-        std::cerr << value << " ";
-    }
-    std::cerr << std::endl;
-
     const double mean = std::accumulate(quantiles.begin(), quantiles.end(), 0.0) / quantiles.size();
 
     double variance = 0;
@@ -88,9 +81,7 @@ ZScoreAnalysisResults analyzeZScores(const Manifest& manifest, const AnchoredIrr
     }
     variance /= quantiles.size();
     const double sigma = std::max(std::sqrt(variance), 1.0);
-
-    std::cerr << mean << " " << sigma << std::endl;
-
+    
     double topZScore = -1;
     vector<string> casesWithHighCounts;
     for (const auto& sampleAndCount : irrCounts.countBySample)

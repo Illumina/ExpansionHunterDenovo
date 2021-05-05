@@ -222,40 +222,16 @@ int runOutlierWorkflow(const OutlierWorkflowParameters& parameters)
     spdlog::info("Loaded {} regions", anchoredIrrCountsByRegion.size());
 
     spdlog::info("Normalizing counts");
-    auto sampleStats = extractSampleStats(multisampleProfile);
-
-    for (const auto& regionCounts : anchoredIrrCountsByRegion)
-    {
-        std::cerr << regionCounts.region << " " << regionCounts.motif << std::endl;
-        for (const auto& sampleAndCount : regionCounts.countBySample)
-        {
-            std::cerr << " " << sampleAndCount.first << " " << sampleAndCount.second << std::endl;
-        }
-    }
-
     auto statsBySample = extractSampleStats(multisampleProfile);
-
-    for (const auto& sampleAndStats : statsBySample)
-    {
-        std::cerr << sampleAndStats.first << "\t" << sampleAndStats.second.depth << "\t"
-                  << sampleAndStats.second.readLength << std::endl;
-    }
 
     const double targetDepth = 40;
     depthNormalize(statsBySample, targetDepth, anchoredIrrCountsByRegion);
 
-    for (const auto& regionCounts : anchoredIrrCountsByRegion)
-    {
-        std::cerr << regionCounts.region << " " << regionCounts.motif << std::endl;
-        for (const auto& sampleAndCount : regionCounts.countBySample)
-        {
-            std::cerr << " " << sampleAndCount.first << " " << sampleAndCount.second << std::endl;
-        }
-    }
-
+    spdlog::info("Performing outlier analysis");
     vector<string> orderedSamples;
     auto manifest = loadManifest(parameters.pathToManifest(), orderedSamples);
     performLocusAnalysis(reference, manifest, anchoredIrrCountsByRegion, parameters.pathToLocusResults());
+    spdlog::info("Done");
 
     return 0;
 }
