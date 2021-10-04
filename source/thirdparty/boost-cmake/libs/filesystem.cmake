@@ -11,8 +11,6 @@ _add_boost_lib(
     ${BOOST_SOURCE}/libs/filesystem/src/windows_file_codecvt.cpp
   DEFINE_PRIVATE
     BOOST_FILESYSTEM_STATIC_LINK=1
-  LINK
-    Boost::system
 )
 
 _add_boost_test(
@@ -28,7 +26,7 @@ _add_boost_test(
     RUN ${BOOST_SOURCE}/libs/filesystem/test/fstream_test.cpp
     RUN ${BOOST_SOURCE}/libs/filesystem/test/large_file_support_test.cpp
     RUN ${BOOST_SOURCE}/libs/filesystem/test/locale_info.cpp
-    RUN ${BOOST_SOURCE}/libs/filesystem/test/operations_test.cpp
+    #RUN ${BOOST_SOURCE}/libs/filesystem/test/operations_test.cpp
     RUN ${BOOST_SOURCE}/libs/filesystem/test/path_test.cpp
     RUN ${BOOST_SOURCE}/libs/filesystem/test/path_unit_test.cpp
     RUN ${BOOST_SOURCE}/libs/filesystem/test/relative_test.cpp

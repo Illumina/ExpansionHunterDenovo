@@ -34,7 +34,6 @@ _add_boost_lib(
     ${BOOST_SOURCE}/libs/log/src/format_parser.cpp
     ${BOOST_SOURCE}/libs/log/src/date_time_format_parser.cpp
     ${BOOST_SOURCE}/libs/log/src/named_scope_format_parser.cpp
-    ${BOOST_SOURCE}/libs/log/src/unhandled_exception_count.cpp
     ${BOOST_SOURCE}/libs/log/src/permissions.cpp
     ${BOOST_SOURCE}/libs/log/src/dump.cpp
   DEFINE_PRIVATE
@@ -55,7 +54,6 @@ _add_boost_lib(
     Boost::atomic
     Boost::date_time
     Boost::filesystem
-    Boost::system
     Boost::thread
     $<$<BOOL:${USE_WINDOWS}>:
       ws2_32
@@ -168,7 +166,6 @@ _add_boost_test(
     Boost::log
     Boost::log_setup
     Boost::regex
-    Boost::system
     Boost::thread
     Boost::unit_test_framework
     Boost_log_common
@@ -204,8 +201,6 @@ _add_boost_test(
     RUN ${BOOST_SOURCE}/libs/log/test/run/form_xml_decor.cpp
     RUN ${BOOST_SOURCE}/libs/log/test/run/sink_text_ipc_mq_backend.cpp
     RUN ${BOOST_SOURCE}/libs/log/test/run/src_record_ostream.cpp
-    RUN ${BOOST_SOURCE}/libs/log/test/run/unhandled_exception_count.cpp
-    RUN ${BOOST_SOURCE}/libs/log/test/run/unhandled_exception_count_np.cpp
     RUN ${BOOST_SOURCE}/libs/log/test/run/util_dynamic_type_disp.cpp
     RUN ${BOOST_SOURCE}/libs/log/test/run/util_exception_handler.cpp
     RUN ${BOOST_SOURCE}/libs/log/test/run/util_formatting_ostream.cpp

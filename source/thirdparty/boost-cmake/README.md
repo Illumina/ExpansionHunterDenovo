@@ -1,4 +1,4 @@
-# Boost CMake [![Build Status](https://travis-ci.org/Orphis/boost-cmake.svg?branch=master)](https://travis-ci.org/Orphis/boost-cmake)
+# Boost CMake [![Build Status](https://dev.azure.com/Orphis/boost-cmake/_apis/build/status/Orphis.boost-cmake?branchName=master)](https://dev.azure.com/Orphis/boost-cmake/_build/latest?definitionId=1?branchName=master)
 
 ## Synopsis
 
@@ -10,7 +10,7 @@ Install the submodule in your project structure:
 ```
 git submodule add https://github.com/Orphis/boost-cmake.git
 ```
-Use it! In you CMakeLists.txt file:
+Use it! In your CMakeLists.txt file:
 
 ```
 add_subdirectory(boost-cmake)
@@ -30,9 +30,17 @@ set(BOOST_URL_SHA256 foobar)
 add_subdirectory(boost-cmake)
 ```
 
+For more advanced configuration, you can override the way to download the sources using [FetchContent_Declare](https://cmake.org/cmake/help/latest/module/FetchContent.html):
+```
+FetchContent_Declare(
+  Boost
+  SVN_REPOSITORY "svn+ssh://svn.company.com/boost"
+)
+```
+
 If you have Boost sources already available and want to point to them, you can use the following:
 ```
-set(BOOST_SOURCE /path/to/boost)
+set(FETCHCONTENT_SOURCE_DIR_BOOST /path/to/boost)
 add_subdirectory(boost-cmake)
 ```
 

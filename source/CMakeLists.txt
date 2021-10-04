@@ -8,7 +8,7 @@ enable_testing()
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-add_subdirectory(thirdparty/boost-cmake-1.67.0)
+add_subdirectory(thirdparty/boost-cmake)
 
 # Required to make spdlog work
 include_directories(thirdparty)
