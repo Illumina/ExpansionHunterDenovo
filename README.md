@@ -53,7 +53,6 @@ instructions, usage guide, and description of file formats.
 
 ## License
 
-ExpansionHunter Denovo is provided under the terms and conditions of the [Apache
-License Version 2.0](LICENSE.txt). It relies on several third party packages
+ExpansionHunter Denovo is provided under the terms and conditions of the [PolyForm Strict License 1.0.0](LICENSE.txt). It relies on several third party packages
 provided under other open-source licenses, please see [COPYRIGHT.txt](COPYRIGHT.txt)
 for additional details.
